@@ -1,0 +1,1108 @@
+{
+ "home": {
+  "VCE": "Venezia Marco Polo",
+  "TSF": "Treviso Antonio Canova"
+ },
+ "sets": {
+  "europe-short": {
+   "label": "Europa, voli brevi",
+   "codes": [
+    "BCN",
+    "MAD",
+    "CDG",
+    "ORY",
+    "AMS",
+    "BRU",
+    "LHR",
+    "STN",
+    "LGW",
+    "DUB",
+    "BER",
+    "MUC",
+    "FRA",
+    "VIE",
+    "ZRH",
+    "PRG",
+    "BUD",
+    "WAW",
+    "KRK",
+    "CPH"
+   ]
+  },
+  "europe-wide": {
+   "label": "Europa, elenco esteso",
+   "codes": [
+    "BCN",
+    "MAD",
+    "AGP",
+    "VLC",
+    "SVQ",
+    "LIS",
+    "OPO",
+    "CDG",
+    "ORY",
+    "NCE",
+    "MRS",
+    "LYS",
+    "AMS",
+    "EIN",
+    "BRU",
+    "CRL",
+    "LHR",
+    "STN",
+    "LGW",
+    "LTN",
+    "MAN",
+    "EDI",
+    "DUB",
+    "BER",
+    "MUC",
+    "FRA",
+    "HAM",
+    "CGN",
+    "DUS",
+    "VIE",
+    "ZRH",
+    "GVA",
+    "PRG",
+    "BUD",
+    "WAW",
+    "KRK",
+    "GDN",
+    "CPH",
+    "ARN",
+    "OSL",
+    "HEL",
+    "TLL",
+    "RIX",
+    "VNO",
+    "ATH",
+    "SKG",
+    "OTP",
+    "SOF",
+    "BEG",
+    "ZAG"
+   ]
+  },
+  "sun": {
+   "label": "Mare e sole",
+   "codes": [
+    "AGP",
+    "PMI",
+    "IBZ",
+    "ALC",
+    "FAO",
+    "CTA",
+    "PMO",
+    "CAG",
+    "OLB",
+    "BRI",
+    "NAP",
+    "ATH",
+    "HER",
+    "RHO",
+    "CFU",
+    "JMK",
+    "JTR",
+    "SPU",
+    "DBV",
+    "TIA",
+    "AYT",
+    "IST",
+    "SSH",
+    "HRG",
+    "RAK",
+    "TFS",
+    "LPA",
+    "ACE",
+    "FUE",
+    "MLA"
+   ]
+  },
+  "city-break": {
+   "label": "Weekend in citta'",
+   "codes": [
+    "BCN",
+    "MAD",
+    "LIS",
+    "CDG",
+    "AMS",
+    "BRU",
+    "LHR",
+    "DUB",
+    "BER",
+    "MUC",
+    "VIE",
+    "PRG",
+    "BUD",
+    "KRK",
+    "CPH",
+    "ARN",
+    "OSL",
+    "HEL",
+    "ATH",
+    "IST",
+    "LIS",
+    "OPO",
+    "SVQ",
+    "VLC",
+    "EDI",
+    "MAN",
+    "WAW",
+    "BEG",
+    "ZAG",
+    "SOF"
+   ]
+  },
+  "long-haul": {
+   "label": "Lungo raggio",
+   "codes": [
+    "JFK",
+    "EWR",
+    "BOS",
+    "ORD",
+    "LAX",
+    "SFO",
+    "MIA",
+    "YYZ",
+    "GRU",
+    "EZE",
+    "DXB",
+    "DOH",
+    "AUH",
+    "IST",
+    "CAI",
+    "JNB",
+    "BKK",
+    "SIN",
+    "HKG",
+    "NRT",
+    "ICN",
+    "DEL",
+    "BOM",
+    "PEK",
+    "PVG",
+    "SYD",
+    "MEX",
+    "CUN",
+    "HAV",
+    "PUJ"
+   ]
+  }
+ },
+ "aliases": {
+  "londra": [
+   "LHR",
+   "LGW",
+   "STN",
+   "LTN"
+  ],
+  "parigi": [
+   "CDG",
+   "ORY",
+   "BVA"
+  ],
+  "monaco di baviera": [
+   "MUC"
+  ],
+  "monaco": [
+   "MUC"
+  ],
+  "colonia": [
+   "CGN"
+  ],
+  "francoforte": [
+   "FRA"
+  ],
+  "amburgo": [
+   "HAM"
+  ],
+  "berlino": [
+   "BER"
+  ],
+  "vienna": [
+   "VIE"
+  ],
+  "zurigo": [
+   "ZRH"
+  ],
+  "ginevra": [
+   "GVA"
+  ],
+  "bruxelles": [
+   "BRU",
+   "CRL"
+  ],
+  "anversa": [
+   "ANR"
+  ],
+  "amsterdam": [
+   "AMS"
+  ],
+  "copenaghen": [
+   "CPH"
+  ],
+  "stoccolma": [
+   "ARN",
+   "BMA"
+  ],
+  "oslo": [
+   "OSL"
+  ],
+  "helsinki": [
+   "HEL"
+  ],
+  "praga": [
+   "PRG"
+  ],
+  "varsavia": [
+   "WAW",
+   "WMI"
+  ],
+  "cracovia": [
+   "KRK"
+  ],
+  "budapest": [
+   "BUD"
+  ],
+  "bucarest": [
+   "OTP"
+  ],
+  "atene": [
+   "ATH"
+  ],
+  "salonicco": [
+   "SKG"
+  ],
+  "istanbul": [
+   "IST",
+   "SAW"
+  ],
+  "lisbona": [
+   "LIS"
+  ],
+  "oporto": [
+   "OPO"
+  ],
+  "porto": [
+   "OPO"
+  ],
+  "siviglia": [
+   "SVQ"
+  ],
+  "malaga": [
+   "AGP"
+  ],
+  "maiorca": [
+   "PMI"
+  ],
+  "palma di maiorca": [
+   "PMI"
+  ],
+  "ibiza": [
+   "IBZ"
+  ],
+  "tenerife": [
+   "TFS",
+   "TFN"
+  ],
+  "gran canaria": [
+   "LPA"
+  ],
+  "lanzarote": [
+   "ACE"
+  ],
+  "fuerteventura": [
+   "FUE"
+  ],
+  "valencia": [
+   "VLC"
+  ],
+  "barcellona": [
+   "BCN"
+  ],
+  "madrid": [
+   "MAD"
+  ],
+  "dublino": [
+   "DUB"
+  ],
+  "edimburgo": [
+   "EDI"
+  ],
+  "manchester": [
+   "MAN"
+  ],
+  "belgrado": [
+   "BEG"
+  ],
+  "zagabria": [
+   "ZAG"
+  ],
+  "spalato": [
+   "SPU"
+  ],
+  "ragusa": [
+   "DBV"
+  ],
+  "dubrovnik": [
+   "DBV"
+  ],
+  "tirana": [
+   "TIA"
+  ],
+  "sofia": [
+   "SOF"
+  ],
+  "malta": [
+   "MLA"
+  ],
+  "creta": [
+   "HER",
+   "CHQ"
+  ],
+  "rodi": [
+   "RHO"
+  ],
+  "corfu": [
+   "CFU"
+  ],
+  "mykonos": [
+   "JMK"
+  ],
+  "santorini": [
+   "JTR"
+  ],
+  "marrakech": [
+   "RAK"
+  ],
+  "il cairo": [
+   "CAI"
+  ],
+  "sharm el sheikh": [
+   "SSH"
+  ],
+  "hurghada": [
+   "HRG"
+  ],
+  "dubai": [
+   "DXB"
+  ],
+  "doha": [
+   "DOH"
+  ],
+  "abu dhabi": [
+   "AUH"
+  ],
+  "new york": [
+   "JFK",
+   "EWR",
+   "LGA"
+  ],
+  "boston": [
+   "BOS"
+  ],
+  "chicago": [
+   "ORD"
+  ],
+  "los angeles": [
+   "LAX"
+  ],
+  "san francisco": [
+   "SFO"
+  ],
+  "miami": [
+   "MIA"
+  ],
+  "toronto": [
+   "YYZ"
+  ],
+  "san paolo": [
+   "GRU"
+  ],
+  "buenos aires": [
+   "EZE"
+  ],
+  "citta del messico": [
+   "MEX"
+  ],
+  "l avana": [
+   "HAV"
+  ],
+  "avana": [
+   "HAV"
+  ],
+  "bangkok": [
+   "BKK"
+  ],
+  "singapore": [
+   "SIN"
+  ],
+  "hong kong": [
+   "HKG"
+  ],
+  "tokyo": [
+   "NRT",
+   "HND"
+  ],
+  "seul": [
+   "ICN"
+  ],
+  "pechino": [
+   "PEK"
+  ],
+  "shanghai": [
+   "PVG"
+  ],
+  "delhi": [
+   "DEL"
+  ],
+  "mumbai": [
+   "BOM"
+  ],
+  "sydney": [
+   "SYD"
+  ],
+  "johannesburg": [
+   "JNB"
+  ],
+  "roma": [
+   "FCO",
+   "CIA"
+  ],
+  "milano": [
+   "MXP",
+   "LIN",
+   "BGY"
+  ],
+  "napoli": [
+   "NAP"
+  ],
+  "palermo": [
+   "PMO"
+  ],
+  "catania": [
+   "CTA"
+  ],
+  "bari": [
+   "BRI"
+  ],
+  "cagliari": [
+   "CAG"
+  ],
+  "olbia": [
+   "OLB"
+  ],
+  "venezia": [
+   "VCE",
+   "TSF"
+  ],
+  "treviso": [
+   "TSF"
+  ],
+  "bologna": [
+   "BLQ"
+  ],
+  "verona": [
+   "VRN"
+  ],
+  "firenze": [
+   "FLR"
+  ],
+  "pisa": [
+   "PSA"
+  ],
+  "torino": [
+   "TRN"
+  ],
+  "genova": [
+   "GOA"
+  ],
+  "trieste": [
+   "TRS"
+  ]
+ },
+ "main": {
+  "ae": [
+   "DXB",
+   "AUH",
+   "SHJ"
+  ],
+  "af": [
+   "KBL"
+  ],
+  "ag": [
+   "ANU"
+  ],
+  "al": [
+   "TIA"
+  ],
+  "am": [
+   "EVN"
+  ],
+  "ao": [
+   "LAD"
+  ],
+  "ar": [
+   "EZE",
+   "AEP",
+   "COR",
+   "MDZ"
+  ],
+  "at": [
+   "VIE",
+   "SZG",
+   "INN",
+   "GRZ"
+  ],
+  "au": [
+   "SYD",
+   "MEL",
+   "BNE",
+   "PER",
+   "ADL"
+  ],
+  "aw": [
+   "AUA"
+  ],
+  "az": [
+   "GYD"
+  ],
+  "ba": [
+   "SJJ"
+  ],
+  "bb": [
+   "BGI"
+  ],
+  "bd": [
+   "DAC"
+  ],
+  "be": [
+   "BRU",
+   "CRL"
+  ],
+  "bg": [
+   "SOF",
+   "VAR",
+   "BOJ"
+  ],
+  "bh": [
+   "BAH"
+  ],
+  "bn": [
+   "BWN"
+  ],
+  "bo": [
+   "VVI",
+   "LPB"
+  ],
+  "br": [
+   "GRU",
+   "GIG",
+   "BSB",
+   "SSA",
+   "REC",
+   "FOR"
+  ],
+  "bs": [
+   "NAS"
+  ],
+  "bt": [
+   "PBH"
+  ],
+  "bw": [
+   "GBE"
+  ],
+  "by": [
+   "MSQ"
+  ],
+  "bz": [
+   "BZE"
+  ],
+  "ca": [
+   "YYZ",
+   "YVR",
+   "YUL",
+   "YYC"
+  ],
+  "ch": [
+   "ZRH",
+   "GVA"
+  ],
+  "ci": [
+   "ABJ"
+  ],
+  "cl": [
+   "SCL"
+  ],
+  "cm": [
+   "DLA"
+  ],
+  "cn": [
+   "PEK",
+   "PKX",
+   "PVG",
+   "CAN",
+   "SZX",
+   "CTU"
+  ],
+  "co": [
+   "BOG",
+   "MDE",
+   "CTG"
+  ],
+  "cr": [
+   "SJO",
+   "LIR"
+  ],
+  "cu": [
+   "HAV",
+   "VRA"
+  ],
+  "cv": [
+   "SID",
+   "BVC",
+   "RAI"
+  ],
+  "cy": [
+   "LCA",
+   "PFO"
+  ],
+  "cz": [
+   "PRG"
+  ],
+  "de": [
+   "FRA",
+   "MUC",
+   "BER",
+   "DUS",
+   "HAM"
+  ],
+  "dk": [
+   "CPH",
+   "BLL"
+  ],
+  "do": [
+   "PUJ",
+   "SDQ"
+  ],
+  "dz": [
+   "ALG"
+  ],
+  "ec": [
+   "UIO",
+   "GYE"
+  ],
+  "ee": [
+   "TLL"
+  ],
+  "eg": [
+   "CAI",
+   "HRG",
+   "SSH",
+   "RMF"
+  ],
+  "es": [
+   "MAD",
+   "BCN",
+   "AGP",
+   "PMI",
+   "ALC"
+  ],
+  "et": [
+   "ADD"
+  ],
+  "fi": [
+   "HEL",
+   "RVN"
+  ],
+  "fj": [
+   "NAN"
+  ],
+  "fr": [
+   "CDG",
+   "ORY",
+   "NCE",
+   "LYS",
+   "MRS"
+  ],
+  "gb": [
+   "LHR",
+   "LGW",
+   "MAN",
+   "EDI",
+   "STN"
+  ],
+  "ge": [
+   "TBS",
+   "KUT",
+   "BUS"
+  ],
+  "gh": [
+   "ACC"
+  ],
+  "gr": [
+   "ATH",
+   "SKG",
+   "HER",
+   "RHO",
+   "CFU"
+  ],
+  "gt": [
+   "GUA"
+  ],
+  "hk": [
+   "HKG"
+  ],
+  "hn": [
+   "SAP"
+  ],
+  "hr": [
+   "ZAG",
+   "SPU",
+   "DBV",
+   "ZAD",
+   "PUY"
+  ],
+  "hu": [
+   "BUD"
+  ],
+  "id": [
+   "CGK",
+   "DPS",
+   "SUB"
+  ],
+  "ie": [
+   "DUB",
+   "ORK",
+   "SNN"
+  ],
+  "il": [
+   "TLV"
+  ],
+  "in": [
+   "DEL",
+   "BOM",
+   "BLR",
+   "MAA",
+   "HYD",
+   "CCU",
+   "COK",
+   "GOI"
+  ],
+  "iq": [
+   "BGW",
+   "EBL"
+  ],
+  "ir": [
+   "IKA"
+  ],
+  "is": [
+   "KEF"
+  ],
+  "it": [
+   "FCO",
+   "MXP",
+   "NAP",
+   "CTA",
+   "PMO"
+  ],
+  "jm": [
+   "MBJ",
+   "KIN"
+  ],
+  "jo": [
+   "AMM",
+   "AQJ"
+  ],
+  "jp": [
+   "NRT",
+   "HND",
+   "KIX",
+   "NGO",
+   "FUK"
+  ],
+  "ke": [
+   "NBO",
+   "MBA"
+  ],
+  "kg": [
+   "FRU",
+   "BSZ"
+  ],
+  "kh": [
+   "PNH",
+   "KTI",
+   "REP",
+   "SAI"
+  ],
+  "kr": [
+   "ICN",
+   "GMP",
+   "PUS",
+   "CJU"
+  ],
+  "kw": [
+   "KWI"
+  ],
+  "kz": [
+   "ALA",
+   "NQZ"
+  ],
+  "la": [
+   "VTE",
+   "LPQ"
+  ],
+  "lb": [
+   "BEY"
+  ],
+  "lk": [
+   "CMB"
+  ],
+  "lt": [
+   "VNO",
+   "KUN"
+  ],
+  "lu": [
+   "LUX"
+  ],
+  "lv": [
+   "RIX"
+  ],
+  "ma": [
+   "CMN",
+   "RAK",
+   "AGA",
+   "FEZ",
+   "TNG"
+  ],
+  "md": [
+   "KIV",
+   "RMO"
+  ],
+  "me": [
+   "TGD",
+   "TIV"
+  ],
+  "mg": [
+   "TNR"
+  ],
+  "mk": [
+   "SKP"
+  ],
+  "mm": [
+   "RGN"
+  ],
+  "mn": [
+   "UBN"
+  ],
+  "mo": [
+   "MFM"
+  ],
+  "mt": [
+   "MLA"
+  ],
+  "mu": [
+   "MRU"
+  ],
+  "mv": [
+   "MLE"
+  ],
+  "mx": [
+   "MEX",
+   "CUN",
+   "GDL"
+  ],
+  "my": [
+   "KUL",
+   "PEN",
+   "LGK"
+  ],
+  "mz": [
+   "MPM"
+  ],
+  "na": [
+   "WDH"
+  ],
+  "ng": [
+   "LOS",
+   "ABV"
+  ],
+  "nl": [
+   "AMS",
+   "EIN",
+   "RTM"
+  ],
+  "no": [
+   "OSL",
+   "BGO",
+   "TOS"
+  ],
+  "np": [
+   "KTM"
+  ],
+  "nz": [
+   "AKL",
+   "CHC",
+   "WLG"
+  ],
+  "om": [
+   "MCT",
+   "SLL"
+  ],
+  "pa": [
+   "PTY"
+  ],
+  "pe": [
+   "LIM",
+   "CUZ"
+  ],
+  "ph": [
+   "MNL",
+   "CEB"
+  ],
+  "pk": [
+   "KHI",
+   "LHE",
+   "ISB"
+  ],
+  "pl": [
+   "WAW",
+   "KRK",
+   "GDN",
+   "WRO"
+  ],
+  "pt": [
+   "LIS",
+   "OPO",
+   "FAO",
+   "FNC",
+   "PDL"
+  ],
+  "py": [
+   "ASU"
+  ],
+  "qa": [
+   "DOH"
+  ],
+  "ro": [
+   "OTP",
+   "CLJ",
+   "IAS"
+  ],
+  "rs": [
+   "BEG"
+  ],
+  "ru": [
+   "SVO",
+   "DME",
+   "LED"
+  ],
+  "rw": [
+   "KGL"
+  ],
+  "sa": [
+   "JED",
+   "RUH",
+   "DMM"
+  ],
+  "sc": [
+   "SEZ"
+  ],
+  "se": [
+   "ARN",
+   "GOT"
+  ],
+  "sg": [
+   "SIN"
+  ],
+  "si": [
+   "LJU"
+  ],
+  "sk": [
+   "BTS",
+   "KSC"
+  ],
+  "sn": [
+   "DSS"
+  ],
+  "sv": [
+   "SAL"
+  ],
+  "th": [
+   "BKK",
+   "DMK",
+   "HKT",
+   "CNX",
+   "USM"
+  ],
+  "tn": [
+   "TUN",
+   "DJE",
+   "MIR"
+  ],
+  "tr": [
+   "IST",
+   "SAW",
+   "AYT",
+   "ADB",
+   "ESB"
+  ],
+  "tt": [
+   "POS"
+  ],
+  "tw": [
+   "TPE"
+  ],
+  "tz": [
+   "DAR",
+   "ZNZ",
+   "JRO"
+  ],
+  "ua": [
+   "KBP"
+  ],
+  "ug": [
+   "EBB"
+  ],
+  "us": [
+   "JFK",
+   "EWR",
+   "LAX",
+   "SFO",
+   "MIA",
+   "ORD",
+   "BOS"
+  ],
+  "uy": [
+   "MVD"
+  ],
+  "uz": [
+   "TAS",
+   "SKD"
+  ],
+  "ve": [
+   "CCS"
+  ],
+  "vn": [
+   "SGN",
+   "HAN",
+   "DAD"
+  ],
+  "xk": [
+   "PRN"
+  ],
+  "za": [
+   "JNB",
+   "CPT",
+   "DUR"
+  ],
+  "zm": [
+   "LUN"
+  ],
+  "zw": [
+   "HRE",
+   "VFA"
+  ]
+ }
+}

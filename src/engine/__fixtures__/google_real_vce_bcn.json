@@ -1,0 +1,30 @@
+{
+ "quotes": [
+  {
+   "segments": [
+    {
+     "from_code": "VCE",
+     "to_code": "BCN",
+     "departure": "2026-12-24T22:20:00+01:00",
+     "arrival": "2026-12-25T00:20:00+01:00",
+     "airline_code": "VY",
+     "airline_name": "Vueling",
+     "flight_number": "6095",
+     "duration_min": 120
+    }
+   ],
+   "price": 53.0,
+   "currency": "EUR",
+   "duration_min": 120,
+   "self_transfer": null,
+   "verification": "google_live",
+   "airline_verified": false,
+   "baggage": "base",
+   "baggage_basis": "google_search_filter",
+   "travelers": 1,
+   "seat": "economy",
+   "booking_url": "u"
+  }
+ ],
+ "rejected": 0
+}

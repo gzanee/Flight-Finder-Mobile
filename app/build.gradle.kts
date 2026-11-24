@@ -1,107 +1,93 @@
-// The app's screens, written once in Compose Multiplatform for Android and iOS.
-// The desktop (JVM) target is only for development: it compiles and shows the
-// screens on a computer without Android Studio or Xcode.
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
-
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.compose.multiplatform)
-    alias(libs.plugins.android.kmp.library)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
-kotlin {
-    jvmToolchain(21)
+android {
+    namespace = "it.gzanee.flightfinder"
+    compileSdk = 36
 
-    android {
-        namespace = "it.gzanee.flightfinder.app"
-        compileSdk = 36
+    defaultConfig {
+        applicationId = "it.gzanee.flightfinder"
         minSdk = 26
-        androidResources.enable = true
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    val xcf = XCFramework("ComposeApp")
-    listOf(iosArm64(), iosSimulatorArm64()).forEach {
-        it.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-            xcf.add(this)
+    base.archivesName.set("FlightFinder-${defaultConfig.versionName}")
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Firmato con la chiave di debug: l'APK si installa subito. Per pubblicarlo serve una chiave propria.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
-
-    jvm("desktop")
-
-    compilerOptions {
-        optIn.add("kotlin.time.ExperimentalTime")
-        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
     sourceSets {
-        commonMain.dependencies {
-            implementation(project(":engine"))
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.resources)
-            implementation(libs.navigation.compose)
-            implementation(libs.lifecycle.viewmodel)
-            implementation(libs.serialization.json)
-            implementation(libs.coroutines.core)
-            implementation(libs.okio)
-            implementation(libs.ktor.core)
-        }
-        androidMain.dependencies {
-            implementation(libs.ktor.okhttp)
-            implementation(libs.activity.compose)
-        }
-        iosMain.dependencies {
-            implementation(libs.ktor.darwin)
-        }
-        val desktopMain by getting {
-            dependencies {
-                implementation(libs.compose.desktop)
-                implementation(libs.ktor.java)
-                implementation(libs.coroutines.swing)
-            }
-        }
-        val desktopTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.compose.ui.test)
-            }
-        }
+        // Aeroporti, compagnie, rotte e paesi esportati dal portale (tools/export_data.py).
+        getByName("main").assets.directories += "../data/catalog"
     }
 }
 
-// The airport catalog of data/catalog becomes the app's resource files.
-val catalogResources = layout.buildDirectory.dir("catalogResources")
-val copyCatalog by tasks.registering(Sync::class) {
-    from(rootProject.file("data/catalog")) { include("*.json") }
-    into(catalogResources.map { it.dir("files") })
-}
-
-compose.resources {
-    packageOfResClass = "it.gzanee.flightfinder.app.resources"
-    customDirectory("commonMain", copyCatalog.map { catalogResources.get() })
-}
-
+// I test confrontano il motore con i casi generati dal portale Python (data/fixtures).
 tasks.withType<Test>().configureEach {
-    // Screens of the UI test, to look at: app/build/screenshots.
-    systemProperty("screenshots", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
-    systemProperty("flightfinder.data", layout.buildDirectory.dir("test-data").get().asFile.absolutePath)
+    systemProperty("fixtures", rootProject.file("data/fixtures").absolutePath)
+    systemProperty("catalog", rootProject.file("data/catalog").absolutePath)
+    maxHeapSize = "2g"
 }
 
-compose.desktop {
-    application {
-        mainClass = "it.gzanee.flightfinder.app.DesktopKt"
-        jvmArgs += listOfNotNull(System.getProperty("flightfinder.demo")?.let { "-Dflightfinder.demo=$it" })
-    }
-}
+dependencies {
+    // Dipendenze base
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
 
-// In UI tests the test thread is the main thread: without the Swing dispatcher,
-// navigation does not expect Swing's event thread.
-configurations.matching { it.name == "desktopTestRuntimeClasspath" }.configureEach {
-    exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-swing")
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // Rete e JSON
+    implementation(libs.okhttp)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

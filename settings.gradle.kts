@@ -1,20 +1,26 @@
-rootProject.name = "flight-finder-mobile"
-
 pluginManagement {
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
         gradlePluginPortal()
     }
 }
-
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
     }
 }
 
-// engine: search engine (no UI). app: Compose Multiplatform UI shared by Android and iOS.
-// androidApp: the Android application. iosApp/ is the Xcode project.
-include(":engine", ":app", ":androidApp")
+rootProject.name = "FlightFinder"
+include(":app")

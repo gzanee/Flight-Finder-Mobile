@@ -122,8 +122,8 @@ fun facets(trips: List<Trip>): Facets {
     val carriers = LinkedHashMap<String, String>()
     for (t in trips) for (s in segments(t)) carriers[s.airlineCode] = s.airlineName.ifEmpty { s.airlineCode }
     return Facets(
-        origins = trips.map { it.outbound.first.fromCode }.toSortedSet(PY_STRING).toList(),
-        destinations = trips.map { it.outbound.last.toCode }.toSortedSet(PY_STRING).toList(),
+        origins = trips.map { it.outbound.first.fromCode }.distinct().sortedWith(PY_STRING),
+        destinations = trips.map { it.outbound.last.toCode }.distinct().sortedWith(PY_STRING),
         airlines = carriers.entries.sortedWith(compareBy(PY_STRING) { it.value }).map { Airline(it.key, it.value) },
     )
 }

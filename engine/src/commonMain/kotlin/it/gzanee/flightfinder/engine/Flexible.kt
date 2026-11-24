@@ -170,7 +170,7 @@ fun clock(value: JsonElement?): String {
 
 private fun weekdays(value: JsonElement?, label: String): List<Int> {
     if (value !is JsonArray || value.isEmpty()) throw SearchValidationError("Seleziona almeno un giorno per $label.")
-    return value.map { integer(it, label, 0, 6) }.toSortedSet().toList()
+    return value.map { integer(it, label, 0, 6) }.distinct().sorted()
 }
 
 private val SEPARATORS = Regex("""[\s,;]+""")
@@ -537,9 +537,9 @@ class Schedule(val request: FlexibleRequest, destinations: List<String>, today: 
         val pairs = datePairs(request)
         datePairs = pairs.filter { (out, back) -> (back ?: out) <= horizon }
         unsoldFrom = pairs.filter { it !in datePairs }.map { (out, back) -> back ?: out }.minOrNull()
-        val out = datePairs.map { it.first }.toSortedSet().toList()
-        backDays = datePairs.mapNotNull { it.second }.toSortedSet().toList()
-        days = (out + backDays).toSortedSet().toList()
+        val out = datePairs.map { it.first }.distinct().sorted()
+        backDays = datePairs.mapNotNull { it.second }.distinct().sorted()
+        days = (out + backDays).distinct().sorted()
         outDays = out.toSet()
         for ((o, back) in datePairs) if (back != null) outsFor.getOrPut(back) { ArrayList() }.add(o)
         for ((o, back) in datePairs) {
@@ -606,7 +606,7 @@ fun buildPlan(r: FlexibleRequest, routeMap: Map<String, List<String>>, today: St
         candidates = r.destinations
         source = "Destinazioni indicate da te"
     } else {
-        candidates = routeMap.values.flatten().toSortedSet(PY_STRING).toList()
+        candidates = routeMap.values.flatten().distinct().sortedWith(PY_STRING)
         source = "Destinazioni candidate dai cataloghi delle rotte; copertura non esaustiva"
         if (r.destinationSet != "real") source = "Gruppo di destinazioni: ${Airports.sets.getValue(r.destinationSet).label}"
     }

@@ -124,7 +124,7 @@ object Airports {
     /** Snapshot routes of an origin (the app has no Wikipedia refresh). */
     fun routeDestinations(origin: String): List<String> = snapshot[origin.uppercase()] ?: emptyList()
 
-    fun routePool(): List<String> = snapshot.values.flatten().toSortedSet(PY_STRING).toList()
+    fun routePool(): List<String> = snapshot.values.flatten().distinct().sortedWith(PY_STRING)
 
     /** Airports to pick a whole country at once, by ISO country code (airports.countries). */
     fun countries(origins: List<String>): Map<String, CountryGroup> {

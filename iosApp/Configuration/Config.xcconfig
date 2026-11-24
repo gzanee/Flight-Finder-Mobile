@@ -1,0 +1,4 @@
+// Set TEAM_ID to your Apple developer team (Xcode → Settings → Accounts) to install on a phone.
+TEAM_ID=
+BUNDLE_ID=it.gzanee.flightfinder
+APP_NAME=Flight Finder

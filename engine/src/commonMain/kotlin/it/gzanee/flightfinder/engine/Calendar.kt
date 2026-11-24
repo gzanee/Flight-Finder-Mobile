@@ -143,6 +143,13 @@ object Calendar {
 
     fun today(): String = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
 
+    /** "HH:MM" of a timestamp in the device's time zone (e.g. "Prezzo delle 12:05"). */
+    fun deviceClock(iso: String): String {
+        val ms = instantMs(iso) ?: return ""
+        val local = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${pad(local.hour)}:${pad(local.minute)}"
+    }
+
     fun nowSeconds(): Double = Clock.System.now().toEpochMilliseconds() / 1000.0
 
     /** UTC now as Python's isoformat writes it (milliseconds). */

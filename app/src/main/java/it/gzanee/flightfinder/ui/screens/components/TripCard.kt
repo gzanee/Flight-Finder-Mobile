@@ -46,7 +46,7 @@ fun LegRow(quote: Quote, title: String, names: PlaceNames) {
     val via = quote.segments.dropLast(1).joinToString(", ") { names.city(it.toCode) }
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)).background(colors.surfaceVariant), contentAlignment = Alignment.Center) {
-            Text(first.airlineName.ifEmpty { first.airlineCode }.take(1), color = colors.textSecondary, fontWeight = FontWeight.ExtraBold)
+            Text(first.airlineName.ifEmpty { first.airlineCode }.take(1).uppercase(), color = colors.textSecondary, fontWeight = FontWeight.ExtraBold)
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text("$title · ${first.departure.shortDay()}", color = colors.textSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)

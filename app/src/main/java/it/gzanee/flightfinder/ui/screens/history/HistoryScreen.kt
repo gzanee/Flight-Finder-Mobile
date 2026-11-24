@@ -69,7 +69,7 @@ fun HistoryScreenContent(
                     Row {
                         Text(
                             "${r.origins.joinToString(" + ") { names.city(it) }} → " +
-                                if (r.destinations.isEmpty()) "Ovunque" else r.destinations.take(3).joinToString(", ") { names.city(it) } + if (r.destinations.size > 3) "…" else "",
+                                if (r.destinations.isEmpty()) "Ovunque" else r.destinations.map(names::city).distinct().let { cities -> cities.take(3).joinToString(", ") + if (cities.size > 3) "…" else "" },
                             color = colors.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2, modifier = Modifier.weight(1f),
                         )
                         Text(saved.status.label, color = if (saved.status == JobStatus.COMPLETE) colors.good else colors.warn, fontSize = 12.sp, fontWeight = FontWeight.Bold)

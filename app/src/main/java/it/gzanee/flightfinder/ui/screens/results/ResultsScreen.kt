@@ -122,10 +122,11 @@ fun ResultsScreenContent(
     val names = state.catalog.names()
     var showFilters by rememberSaveable { mutableStateOf(false) }
     val title = view?.job?.request?.let { r ->
+        val cities = r.destinations.map(names::city).distinct()
         val to = when {
-            r.destinations.isEmpty() -> "Ovunque"
-            r.destinations.size > 2 -> "${r.destinations.size} mete"
-            else -> r.destinations.joinToString(", ") { names.city(it) }
+            cities.isEmpty() -> "Ovunque"
+            cities.size > 2 -> "${cities.size} mete"
+            else -> cities.joinToString(", ")
         }
         "${r.origins.joinToString(" + ") { names.city(it) }} → $to"
     } ?: "Ricerca"
@@ -249,7 +250,7 @@ private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Bo
         color = colors.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold,
     )
     HintText(
-        "${r.origins.joinToString(" + ") { names.city(it) }} → ${if (r.destinations.isEmpty()) "ovunque" else r.destinations.joinToString(", ") { names.city(it) }} · " +
+        "${r.origins.joinToString(" + ") { names.city(it) }} → ${if (r.destinations.isEmpty()) "ovunque" else r.destinations.map(names::city).distinct().joinToString(", ")} · " +
             r.startDate.short() + (if (r.startDate == r.endDate) "" else " – ${r.endDate.short()}") + " · ${count(r.travelers, "viaggiatore", "viaggiatori")}",
     )
     LinearProgressIndicator(

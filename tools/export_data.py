@@ -1,7 +1,7 @@
 """Esporta per l'app i dati che il motore Python legge da librerie e file.
 
 Uso: tools/golden.sh dati  (oppure con il Python del portale: python tools/export_data.py)
-Scrive mobile/src/engine/data/*.json. Rilanciare dopo aver aggiornato
+Scrive data/catalog/*.json. Rilanciare dopo aver aggiornato
 airportsdata, fli o i file in flightcore/data.
 """
 import json
@@ -17,7 +17,7 @@ from fli.models import Airline, Airport  # noqa: E402
 
 from flightcore import airports  # noqa: E402
 
-OUT = APP / "src" / "engine" / "data"
+OUT = APP / "data" / "catalog"
 OUT.mkdir(parents=True, exist_ok=True)
 meta = airportsdata.load("IATA")
 catalog = airports._catalog()

@@ -1,6 +1,5 @@
 package it.gzanee.flightfinder.ui.screens.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,7 +48,7 @@ import java.util.Locale
 @Composable
 private fun PickerBox(label: String?, text: String, isPlaceholder: Boolean, icon: ImageVector, modifier: Modifier, onClear: (() -> Unit)?, onClick: () -> Unit) {
     Row(
-        modifier.fillMaxWidth().heightIn(min = 64.dp).clip(FieldShape).background(colors.surfaceVariant)
+        modifier.fillMaxWidth().heightIn(min = 64.dp).nested()
             .clickable(role = Role.Button, onClick = onClick).padding(start = 14.dp, end = 12.dp, top = 11.dp, bottom = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

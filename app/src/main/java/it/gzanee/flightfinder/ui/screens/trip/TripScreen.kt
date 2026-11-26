@@ -2,6 +2,10 @@ package it.gzanee.flightfinder.ui.screens.trip
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
+import it.gzanee.flightfinder.ui.screens.components.FieldLabel
+import it.gzanee.flightfinder.ui.screens.components.GlassBar
+import it.gzanee.flightfinder.ui.screens.components.RoundIconButton
+import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import it.gzanee.flightfinder.ui.screens.components.ListRow
@@ -25,6 +29,7 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -90,7 +95,7 @@ fun TripScreenContent(
         onToggleTheme = onToggleTheme,
     ) {
         Column(
-            Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding(),
+            Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             if (trip == null) {
@@ -100,7 +105,21 @@ fun TripScreenContent(
                 }
                 return@Column
             }
-            TripDetails(trip, names, state, onOpen, onRecheck)
+            TripDetails(trip, names, state, onOpen)
+        }
+        if (trip != null) {
+            val link = trip.bookingLink()
+            // Dock in basso: prezzo e prenotazione sempre a portata di pollice.
+            GlassBar(Modifier.navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth(), dock = true) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 62.dp).padding(start = 4.dp, end = 7.dp), verticalAlignment = Alignment.CenterVertically) {
+                    RoundIconButton(Icons.Outlined.Refresh, "Aggiorna prezzo", onRecheck, loading = state.isRechecking)
+                    Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
+                        FieldLabel("Totale")
+                        Text(trip.price.asEuro(), style = FlightFinderType.titleSm.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary, maxLines = 1)
+                    }
+                    FlightFinderButton("Google Flights", { onOpen(link) }, enabled = safeGoogleLink(link) != null, trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew)
+                }
+            }
         }
     }
 }
@@ -117,11 +136,10 @@ private fun shareText(trip: Trip, names: PlaceNames) = listOfNotNull(
 ).joinToString("\n")
 
 @Composable
-private fun TripDetails(trip: Trip, names: PlaceNames, state: TripUiState, onOpen: (String?) -> Unit, onRecheck: () -> Unit) {
+private fun TripDetails(trip: Trip, names: PlaceNames, state: TripUiState, onOpen: (String?) -> Unit) {
     val inbound = trip.inbound
     val away = inbound?.first?.fromCode
     val home = inbound?.last?.toCode
-    val bookingLink = trip.bookingLink()
     val country = names.country(trip.destination)
     Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Overline((names.city(trip.destination) + if (country.isNotEmpty()) " · $country" else ""), icon = Icons.Outlined.Place)
@@ -168,10 +186,6 @@ private fun TripDetails(trip: Trip, names: PlaceNames, state: TripUiState, onOpe
             LegRow(inbound, "Ritorno", names)
         }
     }
-    FlightFinderButton(
-        "Apri su Google Flights", { onOpen(bookingLink) }, Modifier.fillMaxWidth().heightIn(min = 54.dp),
-        enabled = safeGoogleLink(bookingLink) != null, trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew,
-    )
     if (away != null && away != trip.destination) {
         InfoBanner("Arrivi a ${state.catalog?.details(trip.destination)?.name} e riparti da ${state.catalog?.details(away)?.name}: il trasferimento è a carico tuo.")
     }
@@ -184,6 +198,5 @@ private fun TripDetails(trip: Trip, names: PlaceNames, state: TripUiState, onOpe
             FlightFinderButton("Solo ritorno", { onOpen(inbound.bookingUrl) }, Modifier.weight(1f), ButtonStyle.OUTLINE, trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew)
         }
     }
-    FlightFinderButton("Aggiorna prezzo", onRecheck, Modifier.fillMaxWidth(), ButtonStyle.SECONDARY, isLoading = state.isRechecking, leadingIcon = Icons.Outlined.Refresh)
     HintText(modifier = Modifier.padding(horizontal = 4.dp), text = "Dati di shopping osservati su Google Flights: numero volo, aeroporti, orari e prezzo. Non sono una conferma della compagnia. Condizioni e bagagli vanno verificati dal venditore.")
 }

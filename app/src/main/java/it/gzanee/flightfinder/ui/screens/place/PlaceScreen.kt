@@ -158,7 +158,7 @@ fun PlaceScreenContent(
         }
         FlightFinderButton(
             if (chosen.isEmpty()) "Fatto" else "Conferma · ${count(chosen.size, if (isOrigin) "partenza" else "meta", if (isOrigin) "partenze" else "mete")}",
-            onBack, Modifier.imePadding().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 14.dp).fillMaxWidth().heightIn(min = 54.dp),
+            onBack, Modifier.imePadding().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth().heightIn(min = 56.dp),
             trailingIcon = Icons.Filled.Check,
         )
     }

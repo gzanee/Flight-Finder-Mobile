@@ -22,7 +22,7 @@ enum class BannerTone { INFO, GOOD, WARN, BAD }
 @Composable
 fun InfoBanner(text: String, tone: BannerTone = BannerTone.WARN, modifier: Modifier = Modifier) {
     val (dot, background) = when (tone) {
-        BannerTone.INFO -> colors.info to colors.surfaceVariant
+        BannerTone.INFO -> colors.info to colors.nested
         BannerTone.GOOD -> colors.good to colors.goodSoft
         BannerTone.WARN -> colors.warn to colors.warnSoft
         BannerTone.BAD -> colors.bad to colors.badSoft

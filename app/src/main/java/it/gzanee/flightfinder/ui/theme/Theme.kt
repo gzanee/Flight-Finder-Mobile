@@ -22,7 +22,10 @@ data class FlightFinderColors(
     val canvasBottom: Color,
     /** Card. */
     val surface: Color,
-    /** Riquadri dentro le card, chip e pulsanti spenti. */
+    /** Superficie annidata in una card: più chiara della card, con un bordo di luce. */
+    val nested: Color,
+    val nestedEdge: Color,
+    /** Tinta d'inchiostro: chip, binari dei selettori, cerchi delle icone, campi. */
     val surfaceVariant: Color,
     val surfaceStrong: Color,
     val textPrimary: Color,
@@ -46,6 +49,9 @@ data class FlightFinderColors(
     val bad: Color,
     val badSoft: Color,
     val info: Color,
+    /** Vetro della barra in alto e del dock (più coprente). */
+    val glass: Color,
+    val dock: Color,
     val isDark: Boolean,
 )
 
@@ -54,6 +60,8 @@ val DarkFlightFinderColors = FlightFinderColors(
     background = CanvasDark,
     canvasBottom = CanvasBottomDark,
     surface = CardDark,
+    nested = NestedDark,
+    nestedEdge = NestedEdgeDark,
     surfaceVariant = InnerDark,
     surfaceStrong = InnerStrongDark,
     textPrimary = InkDark,
@@ -73,6 +81,8 @@ val DarkFlightFinderColors = FlightFinderColors(
     bad = Color(0xFFFF6B7A),
     badSoft = Danger.copy(alpha = 0.18f),
     info = Info,
+    glass = GlassDark,
+    dock = DockDark,
     isDark = true,
 )
 
@@ -81,6 +91,8 @@ val LightFlightFinderColors = FlightFinderColors(
     background = CanvasLight,
     canvasBottom = CanvasBottomLight,
     surface = CardLight,
+    nested = NestedLight,
+    nestedEdge = NestedEdgeLight,
     surfaceVariant = InnerLight,
     surfaceStrong = InnerStrongLight,
     textPrimary = InkLight,
@@ -100,6 +112,8 @@ val LightFlightFinderColors = FlightFinderColors(
     bad = Danger,
     badSoft = Danger.copy(alpha = 0.10f),
     info = Info,
+    glass = GlassLight,
+    dock = DockLight,
     isDark = false,
 )
 
@@ -162,6 +176,7 @@ private fun animateColor(target: Color) =
 @Composable
 private fun animateFlightFinderColors(target: FlightFinderColors) = target.copy(
     canvasTop = animateColor(target.canvasTop),
+    nested = animateColor(target.nested),
     canvasBottom = animateColor(target.canvasBottom),
     onBrandFill = animateColor(target.onBrandFill),
     background = animateColor(target.background),

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -172,8 +173,8 @@ fun SearchScreenContent(
 /** Dock in fondo, come quello di TREK: il periodo scelto e il pulsante pieno per cercare. */
 @Composable
 private fun SearchDock(form: SearchFormState, isLoading: Boolean, onSearch: () -> Unit) {
-    GlassBar(Modifier.imePadding().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().padding(start = 22.dp, end = 8.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    GlassBar(Modifier.imePadding().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth(), dock = true) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 62.dp).padding(start = 22.dp, end = 7.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f).padding(end = 12.dp)) {
                 FieldLabel(if (form.isFlexible) "Periodo" else "Date")
                 Text(

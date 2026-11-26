@@ -1,6 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,8 +20,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 
-val CardShape = RoundedCornerShape(22.dp)
-val InnerShape = RoundedCornerShape(16.dp)
+/** Tre misure: contenitori 26, superfici annidate 18, dettagli 12. */
+val CardShape = RoundedCornerShape(26.dp)
+val InnerShape = RoundedCornerShape(18.dp)
+val DetailShape = RoundedCornerShape(12.dp)
+
+/** Superficie annidata: più chiara della card, con il suo bordo di luce. */
+@Composable
+fun Modifier.nested(shape: androidx.compose.ui.graphics.Shape = InnerShape): Modifier =
+    clip(shape).background(colors.nested).border(1.dp, colors.nestedEdge, shape)
 
 /**
  * Card chiara, molto arrotondata, con un filo di luce sul bordo e un'ombra appena accennata.
@@ -38,7 +47,7 @@ fun FlightFinderCard(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(if (inverted) 14.dp else 6.dp, CardShape, ambientColor = Color(0x14000000), spotColor = Color(if (inverted) 0x40000000 else 0x14000000))
+            .shadow(if (inverted) 16.dp else 4.dp, CardShape, ambientColor = Color(0x0F000000), spotColor = Color(if (inverted) 0x40000000 else 0x12000000))
             .then(if (onClick != null) Modifier.clip(CardShape).clickable(onClick = onClick) else Modifier),
         shape = CardShape,
         color = if (inverted) colors.brandFill else colors.surface,

@@ -30,19 +30,21 @@ const val TABULAR = "tnum"
 
 /** Pochi stili: titoli grandi e decisi, tutto il resto piccolo e tranquillo. */
 object FlightFinderType {
-    val headlineXl = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.02).em)
-    val headline = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 22.sp, lineHeight = 28.sp, letterSpacing = (-0.015).em)
+    // Poppins: titoli 600–700, corpo 400–500. Geist sempre a 500 per etichette, metadati e cifre minori.
+    val headlineXl = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 27.sp, lineHeight = 33.sp, letterSpacing = (-0.02).em)
+    val headline = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 28.sp, letterSpacing = (-0.015).em)
     val title = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, lineHeight = 23.sp, letterSpacing = (-0.01).em)
-    val titleSm = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp, lineHeight = 20.sp)
-    val price = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 21.sp, lineHeight = 26.sp, letterSpacing = (-0.01).em, fontFeatureSettings = TABULAR)
-    val priceXl = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 38.sp, lineHeight = 44.sp, letterSpacing = (-0.02).em, fontFeatureSettings = TABULAR)
-    val time = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 24.sp, fontFeatureSettings = TABULAR)
-    val body = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Normal, fontSize = 13.5.sp, lineHeight = 20.sp)
-    val bodySm = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Normal, fontSize = 12.5.sp, lineHeight = 18.sp)
-    val label = TextStyle(fontFamily = Geist, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp)
+    val titleSm = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 21.sp)
+    val price = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 21.sp, lineHeight = 26.sp, letterSpacing = (-0.01).em, fontFeatureSettings = TABULAR)
+    val priceXl = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 38.sp, lineHeight = 44.sp, letterSpacing = (-0.02).em, fontFeatureSettings = TABULAR)
+    /** Orari di partenza e arrivo: l'informazione da confrontare, quindi grandi. */
+    val time = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 26.sp, lineHeight = 30.sp, letterSpacing = (-0.01).em, fontFeatureSettings = TABULAR)
+    val body = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 21.sp)
+    val bodySm = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 19.sp)
+    val label = TextStyle(fontFamily = Geist, fontWeight = FontWeight.Medium, fontSize = 12.5.sp, lineHeight = 17.sp)
 
-    /** Etichetta maiuscola, piccola e spaziata (es. "VALUTA", "IN ARRIVO"). */
-    val overline = TextStyle(fontFamily = Geist, fontWeight = FontWeight.SemiBold, fontSize = 10.5.sp, lineHeight = 14.sp, letterSpacing = 0.09.em)
+    /** Etichetta maiuscola breve, piccola e spaziata (es. "ANDATA", "PERIODO"). */
+    val overline = TextStyle(fontFamily = Geist, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 0.09.em)
 }
 
 val Typography = Typography(

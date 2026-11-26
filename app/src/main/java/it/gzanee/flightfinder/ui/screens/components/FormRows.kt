@@ -79,10 +79,10 @@ fun FlightFinderTextField(
 
 @Composable
 fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = colors.surfaceVariant,
-    unfocusedContainerColor = colors.surfaceVariant,
+    focusedContainerColor = colors.nested,
+    unfocusedContainerColor = colors.nested,
     focusedBorderColor = colors.brandFill,
-    unfocusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = colors.nestedEdge,
     cursorColor = colors.textPrimary,
     focusedTextColor = colors.textPrimary,
     unfocusedTextColor = colors.textPrimary,
@@ -97,26 +97,22 @@ fun StepperRow(label: String, value: Int, range: IntRange, hint: String? = null,
             if (hint != null) Text(hint, style = FlightFinderType.label, color = colors.textTertiary)
         }
         RoundIconButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 34.dp, enabled = value > range.first)
-        Text("$value", style = FlightFinderType.title.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary, modifier = Modifier.padding(horizontal = 14.dp))
-        RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 34.dp, enabled = value < range.last)
+        Text("$value", style = FlightFinderType.title.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary, modifier = Modifier.padding(horizontal = 4.dp))
+        RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 34.dp, filled = true, enabled = value < range.last)
     }
 }
 
 /** Contatore in un riquadro: etichetta maiuscola, numero grande, − e + tondi sulla stessa riga. */
 @Composable
 fun StepperBox(label: String, value: Int, unit: String, range: IntRange, modifier: Modifier = Modifier, onValueChange: (Int) -> Unit) {
-    Column(modifier.clip(FieldShape).background(colors.surfaceVariant).padding(start = 14.dp, end = 10.dp, top = 12.dp, bottom = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(modifier.nested().padding(start = 14.dp, end = 4.dp, top = 12.dp, bottom = 4.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
         FieldLabel(label)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Row(Modifier.weight(1f), verticalAlignment = Alignment.Bottom) {
                 Text("$value", style = FlightFinderType.headline.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary)
                 Text(" $unit", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(bottom = 4.dp))
             }
-            RoundIconButton(
-                Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 32.dp, tinted = false, enabled = value > range.first,
-                modifier = Modifier.border(1.dp, colors.surfaceStrong, CircleShape),
-            )
-            Box(Modifier.size(6.dp))
+            RoundIconButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 32.dp, enabled = value > range.first)
             RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 32.dp, filled = true, enabled = value < range.last)
         }
     }
@@ -148,7 +144,7 @@ fun ToggleRow(label: String, checked: Boolean, hint: String? = null, onCheckedCh
 /** Opzioni a scelta singola: righe dentro un unico riquadro, separate da un filo. */
 @Composable
 fun <T> OptionList(options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
-    Column(Modifier.fillMaxWidth().clip(FieldShape).background(colors.surfaceVariant)) {
+    Column(Modifier.fillMaxWidth().nested()) {
         options.forEachIndexed { index, (value, label) ->
             val on = value == selected
             if (index > 0) Hairline(Modifier.padding(horizontal = 14.dp))

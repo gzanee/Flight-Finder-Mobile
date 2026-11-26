@@ -1,0 +1,182 @@
+{
+  "title": "TREK-inspired starter system",
+  "date": "2026-11-26",
+  "notice": "Verified values describe inspected TREK source; proposed values are original implementation starting points. Not an official TREK design system.",
+  "sources": {
+    "mobile": "https://github.com/liketrek/TREK/blob/main/client/src/mobile/mobile.css",
+    "desktop": "https://github.com/liketrek/TREK/blob/main/client/src/index.css",
+    "glass": "https://github.com/liketrek/TREK/blob/main/client/src/mobile/components/MGlassBar.tsx",
+    "dock": "https://github.com/liketrek/TREK/blob/main/client/src/mobile/components/MBottomNav.tsx"
+  },
+  "verified": {
+    "mobile": {
+      "light": {
+        "ink": "#101013",
+        "muted": "#68686F",
+        "faint": "#9A9AA1",
+        "bg": "#F3F2EF",
+        "scr": "radial-gradient(120% 80% at 50% -10%, #FBFAF7 0%, #F1EFEA 55%, #E9E7E1 100%)",
+        "glass": "rgba(255,255,255,.6)",
+        "dock": "rgba(255,255,255,.8)",
+        "gbr": "rgba(255,255,255,.75)",
+        "card": "rgba(255,255,255,.55)",
+        "cbr": "rgba(255,255,255,.75)",
+        "inner": "rgba(255,255,255,.68)",
+        "inbr": "rgba(255,255,255,.9)",
+        "act": "#101013",
+        "actfg": "#fff",
+        "sheet": "rgba(250,250,248,.94)",
+        "sheetop": "#FAFAF8",
+        "rowbr": "rgba(16,16,19,.045)",
+        "mapb": "#E8E6E1",
+        "mapr": "#FBFAF8",
+        "mapw": "#DFE2E4",
+        "st-confirmed": "#2FA37A",
+        "st-pending": "#E8A13A",
+        "st-info": "#4A7DDB",
+        "st-danger": "#D6273B"
+      },
+      "dark": {
+        "ink": "#F5F5F7",
+        "muted": "#9C9CA3",
+        "faint": "#6E6E76",
+        "bg": "#0A0A0C",
+        "scr": "radial-gradient(120% 80% at 50% -10%, #17171C 0%, #0C0C0F 55%, #08080A 100%)",
+        "glass": "rgba(26,26,31,.6)",
+        "dock": "rgba(26,26,31,.82)",
+        "gbr": "rgba(255,255,255,.12)",
+        "card": "rgba(24,24,29,.55)",
+        "cbr": "rgba(255,255,255,.1)",
+        "inner": "rgba(255,255,255,.07)",
+        "inbr": "rgba(255,255,255,.1)",
+        "act": "#F5F5F7",
+        "actfg": "#101013",
+        "sheet": "rgba(22,22,27,.94)",
+        "sheetop": "#191920",
+        "rowbr": "rgba(255,255,255,.07)",
+        "mapb": "#121215",
+        "mapr": "#1E1F24",
+        "mapw": "#0D1013"
+      }
+    },
+    "desktop": {
+      "light": {
+        "background": "#FFFFFF",
+        "secondary": "#F8FAFC",
+        "card": "#FFFFFF",
+        "ink": "#111827",
+        "muted": "#6B7280",
+        "accent": "#111827"
+      },
+      "dark": {
+        "background": "#121215",
+        "secondary": "#1A1A1E",
+        "card": "#131316",
+        "ink": "#F4F4F5",
+        "muted": "#A1A1AA",
+        "accent": "#E4E4E7"
+      }
+    },
+    "fonts": {
+      "primary": "Poppins",
+      "secondary": "Geist Sans",
+      "mobileSecondaryWeight": 500
+    },
+    "mobileGeometryPx": {
+      "topBarPaddingX": 14,
+      "topBarPaddingY": 8,
+      "dockHeight": 62,
+      "dockRadius": 31,
+      "dockInsetX": 16,
+      "dockBottomAboveSafeArea": 12,
+      "navCircle": 42,
+      "centralAction": 56,
+      "iconButton": 38,
+      "sheetCloseButton": 34,
+      "segmentTrackPadding": 3
+    },
+    "materials": {
+      "topBar": {
+        "blurPx": 26,
+        "saturation": 1.7,
+        "shadow": "0 14px 34px -16px rgba(0,0,0,.22)"
+      },
+      "dock": {
+        "blurPx": 30,
+        "saturation": 1.4,
+        "shadow": "0 16px 44px -14px rgba(0,0,0,.35)"
+      }
+    },
+    "motionMs": {
+      "popover": 220,
+      "sheetEnter": 260,
+      "sheetExit": 220,
+      "sheetRise": 420,
+      "sheetLower": 300,
+      "drawer": 280
+    },
+    "curves": {
+      "out": "cubic-bezier(.23,1,.32,1)",
+      "drawer": "cubic-bezier(.32,.72,0,1)"
+    },
+    "icons": {
+      "family": "Lucide",
+      "dockSizePx": 21,
+      "dockStroke": 1.9,
+      "dashboardSizePx": 18,
+      "dashboardStroke": 2.1
+    }
+  },
+  "proposed": {
+    "spacing": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      48
+    ],
+    "radius": {
+      "detail": 12,
+      "nested": 18,
+      "card": 26,
+      "hero": 28,
+      "pill": 999
+    },
+    "layout": {
+      "phoneGutter": 16,
+      "desktopGutter": 32,
+      "contentMaxWidth": 1440,
+      "candidateBreakpoints": [
+        768,
+        1200
+      ]
+    },
+    "accessibleTouchTargetAndroidDp": 48,
+    "type": {
+      "heroWeb": [
+        48,
+        72
+      ],
+      "heroMobile": [
+        24,
+        30
+      ],
+      "screenWeb": [
+        28,
+        32
+      ],
+      "screenMobile": 24,
+      "body": [
+        14,
+        16
+      ],
+      "metadata": [
+        12,
+        13
+      ]
+    },
+    "notes": "Web numbers are CSS px; Android needs dp/sp and font scaling. Validate breakpoints from content. Keep a neutral default and test any original accent."
+  }
+}

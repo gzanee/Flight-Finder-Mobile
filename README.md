@@ -2,243 +2,245 @@
 
 # ✈️ Flight Finder · Android
 
-**Più aeroporti. Date flessibili. Il tuo prossimo viaggio, dal telefono.**
+**More airports. Flexible dates. Your next trip, from your phone.**
 
-La ricerca voli di Flight Finder in un'app Android nativa, con motore Kotlin e interfaccia Jetpack Compose.
+Flight Finder's flight search in a native Android app, with a Kotlin engine and a Jetpack Compose interface.
 
 ![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white)
-![Stato](https://img.shields.io/badge/Stato-in%20sviluppo-F59E0B)
+![Status](https://img.shields.io/badge/Status-in%20development-F59E0B)
 
-[Anteprima](#anteprima) · [Funzionalità](#funzionalità) · [Avvio rapido](#avvio-rapido) · [Architettura](#architettura) · [Test](#test) · [Limiti](#dati-e-limiti) · [Portale web](https://github.com/gzanee/Flight-Finder)
+**English** · [Italiano](README.it.md)
+
+[Preview](#preview) · [Features](#features) · [Quick start](#quick-start) · [Architecture](#architecture) · [Tests](#tests) · [Limitations](#data-and-limitations) · [Web app](https://github.com/gzanee/Flight-Finder)
 
 </div>
 
 ---
 
-Flight Finder aiuta a confrontare viaggi con **date esatte o flessibili**, **sola andata o andata e ritorno**, da **più aeroporti** verso destinazioni specifiche oppure **Ovunque**.
+Flight Finder helps you compare trips with **exact or flexible dates**, **one-way or round-trip itineraries**, from **multiple airports** to specific destinations or **Anywhere** ("Ovunque" in the current Italian interface).
 
-Il motore gira sul dispositivo e le richieste a Google Flights partono dalla connessione del telefono: **non serve avviare il portale Python o un backend dedicato**. Il progetto riprende il motore del [portale web](https://github.com/gzanee/Flight-Finder), con test di confronto su casi di riferimento.
+The engine runs on the device and Google Flights requests use the phone's connection: **there is no need to run the Python web app or a dedicated backend**. The project ports the [web app's](https://github.com/gzanee/Flight-Finder) engine, with parity tests against reference cases.
 
-> **Scegli tu da dove partire.** Venezia (VCE) e Treviso (TSF) sono soltanto i valori precompilati per comodità dell'autore. Puoi rimuoverli e scegliere altri aeroporti italiani o internazionali presenti nel catalogo, cercandoli per nome, città o codice IATA.
+> **Choose where you fly from.** Venice (VCE) and Treviso (TSF) are simply the author's convenient defaults. You can remove them and choose other Italian or international airports in the catalog, searching by name, city or IATA code.
 
-## Anteprima
+## Preview
 
 <table>
   <tr>
-    <th>Ricerca</th>
-    <th>Scelta degli aeroporti</th>
-    <th>Destinazioni</th>
-    <th>Dettaglio viaggio</th>
+    <th>Search</th>
+    <th>Airport selection</th>
+    <th>Destinations</th>
+    <th>Trip details</th>
   </tr>
   <tr>
-    <td><a href="docs/screenshots/1_ricerca.png"><img src="docs/screenshots/1_ricerca.png" width="190" alt="Modulo di ricerca con origini modificabili, tipo di viaggio e date"></a></td>
-    <td><a href="docs/screenshots/2_aeroporti.png"><img src="docs/screenshots/2_aeroporti.png" width="190" alt="Selezione degli aeroporti di partenza e destinazione"></a></td>
-    <td><a href="docs/screenshots/3_risultati_mete.png"><img src="docs/screenshots/3_risultati_mete.png" width="190" alt="Risultati raggruppati per destinazione"></a></td>
-    <td><a href="docs/screenshots/5_viaggio.png"><img src="docs/screenshots/5_viaggio.png" width="190" alt="Dettaglio di un viaggio con tratte e orari"></a></td>
+    <td><a href="docs/screenshots/1_ricerca.png"><img src="docs/screenshots/1_ricerca.png" width="190" alt="Search form with configurable origins, trip type and dates"></a></td>
+    <td><a href="docs/screenshots/2_aeroporti.png"><img src="docs/screenshots/2_aeroporti.png" width="190" alt="Selecting departure and destination airports"></a></td>
+    <td><a href="docs/screenshots/3_risultati_mete.png"><img src="docs/screenshots/3_risultati_mete.png" width="190" alt="Results grouped by destination"></a></td>
+    <td><a href="docs/screenshots/5_viaggio.png"><img src="docs/screenshots/5_viaggio.png" width="190" alt="Trip details with flight segments and times"></a></td>
   </tr>
 </table>
 
-*Gli screenshot mostrano una configurazione di esempio: le origini non sono limitate a quelle visualizzate. Tocca un'immagine per aprirla a dimensione intera.*
+*Screenshots show an example configuration in the current Italian interface: origins are not limited to those shown. Select an image to view it at full size.*
 
 <details>
-<summary><strong>Tema scuro, storico e prova connessione</strong></summary>
+<summary><strong>Dark theme, history and connection test</strong></summary>
 
 <table>
   <tr>
-    <th>Viaggi · tema scuro</th>
-    <th>Storico</th>
-    <th>Prova connessione</th>
+    <th>Trips · dark theme</th>
+    <th>History</th>
+    <th>Connection test</th>
   </tr>
   <tr>
-    <td><a href="docs/screenshots/4_risultati_viaggi.png"><img src="docs/screenshots/4_risultati_viaggi.png" width="230" alt="Elenco dei viaggi nel tema scuro"></a></td>
-    <td><a href="docs/screenshots/6_storico.png"><img src="docs/screenshots/6_storico.png" width="230" alt="Storico delle ricerche salvate sul telefono"></a></td>
-    <td><a href="docs/screenshots/7_prova.png"><img src="docs/screenshots/7_prova.png" width="230" alt="Schermata diagnostica per provare la connessione a Google Flights"></a></td>
+    <td><a href="docs/screenshots/4_risultati_viaggi.png"><img src="docs/screenshots/4_risultati_viaggi.png" width="230" alt="Trip list in the dark theme"></a></td>
+    <td><a href="docs/screenshots/6_storico.png"><img src="docs/screenshots/6_storico.png" width="230" alt="History of searches saved on the phone"></a></td>
+    <td><a href="docs/screenshots/7_prova.png"><img src="docs/screenshots/7_prova.png" width="230" alt="Diagnostic screen for testing the Google Flights connection"></a></td>
   </tr>
 </table>
 
 </details>
 
-## Funzionalità
+## Features
 
-| | Cosa puoi fare |
+| | What you can do |
 |---|---|
-| 🌍 **Scegliere le mete** | Fino a **10 origini** e **200 destinazioni**, selezione per paese oppure **Ovunque**. |
-| 📅 **Confrontare le date** | Date fisse o flessibili, sola andata o A/R, preset **Un weekend** e **Qualsiasi giorno**. |
-| 🎛️ **Personalizzare il viaggio** | Filtri per orari, durate, scali, compagnie, bagagli, passeggeri e aeroporti del ritorno. |
-| 🧭 **Scegliere tra le alternative** | Vista per destinazione o per viaggio, calendario dei prezzi e suggerimenti: più economico, più tempo a destinazione, miglior compromesso. |
-| 💾 **Conservare le ricerche** | Storico locale, arresto e ripresa dei lavori senza perdere i viaggi già trovati. |
-| 🔄 **Ricontrollare un'offerta** | Aggiornamento del prezzo e confronto con l'eventuale tariffa A/R unica. |
-| 🔗 **Aprire e condividere** | Link all'offerta su Google Flights e condivisione del singolo viaggio. |
-| 🌗 **Scegliere il tema** | Interfaccia chiara o scura, con preferenza salvata sul dispositivo. |
+| 🌍 **Choose destinations** | Up to **10 origins** and **200 destinations**, country selection or **Anywhere**. |
+| 📅 **Compare dates** | Fixed or flexible dates, one-way or round-trip searches, **A weekend** ("Un weekend") and **Any day** ("Qualsiasi giorno") presets. |
+| 🎛️ **Customize your trip** | Filters for times, durations, stops, airlines, baggage, passengers and return airports. |
+| 🧭 **Choose between options** | Destination or trip views, price calendar and suggestions: cheapest, most time at destination and best trade-off. |
+| 💾 **Keep your searches** | Local history, with stop and resume support without losing trips already found. |
+| 🔄 **Recheck an offer** | Refresh prices and compare with a single round-trip fare when available. |
+| 🔗 **Open and share** | Open the offer on Google Flights and share an individual trip. |
+| 🌗 **Choose your theme** | Light or dark interface, with the preference saved on the device. |
 
-Il catalogo aeroporti e lo storico sono locali. **Per cercare voli o ricontrollare i prezzi serve una connessione Internet.**
+The airport catalog and search history are local. **Searching flights or rechecking prices requires an Internet connection.**
 
-### Un percorso semplice
+### A simple workflow
 
-1. **Scegli le origini**: per esempio Roma Fiumicino e Ciampino, oppure Madrid.
-2. **Imposta la meta e le date**, o usa **Ovunque** per esplorare le possibilità.
-3. **Esamina il piano e avvia la ricerca**; i risultati arrivano progressivamente.
-4. **Confronta le alternative**, ricontrolla il viaggio scelto e apri l'offerta.
-5. **Ritrova la ricerca nello storico** per consultarla o riprenderla.
+1. **Choose your origins**: for example, Rome Fiumicino and Ciampino, or Madrid.
+2. **Set your destination and dates**, or use **Anywhere** to explore options.
+3. **Review the plan and start searching**; results arrive progressively.
+4. **Compare options**, recheck your chosen trip and open the offer.
+5. **Find the search in your history** to view it or resume it.
 
-Per una ricerca lunga puoi prima usare **Prova connessione**: esegue una singola ricerca reale e mostra la risposta ricevuta da Google. Durante una ricerca attiva l'app mantiene lo schermo acceso.
+Before a long search, you can use **Connection test** ("Prova connessione"): it runs a single real search and shows Google's response. The app keeps the screen awake during an active search.
 
-## Avvio rapido
+## Quick start
 
-### Da Android Studio
+### From Android Studio
 
-1. Clona il repository e apri la cartella con **Android Studio → Open**.
-2. Lascia completare la sincronizzazione Gradle e l'installazione degli SDK richiesti.
-3. Seleziona un emulatore o un dispositivo con debug USB attivo e premi **Run**.
+1. Clone the repository and open the folder with **Android Studio → Open**.
+2. Let Gradle sync and install the required SDKs.
+3. Select an emulator or a device with USB debugging enabled and press **Run**.
 
-**Requisiti del progetto:** Android **8.0+** (`minSdk 26`), SDK di compilazione e destinazione **36**. I valori correnti sono in [app/build.gradle.kts](app/build.gradle.kts); le versioni delle dipendenze sono in [gradle/libs.versions.toml](gradle/libs.versions.toml).
+**Project requirements:** Android **8.0+** (`minSdk 26`), compile and target SDK **36**. Current values are in [app/build.gradle.kts](app/build.gradle.kts); dependency versions are in [gradle/libs.versions.toml](gradle/libs.versions.toml).
 
-### Generare un APK
+### Build an APK
 
-Dalla cartella del progetto:
+From the project directory:
 
 ```bash
 ./gradlew :app:assembleRelease
 ```
 
-L'APK viene generato in **`app/build/outputs/apk/release/`**.
+The APK is generated in **`app/build/outputs/apk/release/`**.
 
-La configurazione attuale firma anche la variante release con la **chiave di debug**, per l'installazione di prova. Per una distribuzione definitiva va configurata una propria chiave di firma.
+The current configuration also signs the release variant with the **debug key** for test installations. Configure your own signing key for final distribution.
 
-Su Windows usa `gradlew.bat` al posto di `./gradlew`.
+On Windows, use `gradlew.bat` instead of `./gradlew`.
 
-## Architettura
+## Architecture
 
-Un solo modulo **`:app`**, con separazione tra **UI, dominio e dati**. Il motore di ricerca è in Kotlin e la UI usa ViewModel, Navigation Compose e componenti riutilizzabili.
+A single **`:app`** module separates **UI, domain and data**. The search engine is written in Kotlin; the UI uses ViewModel, Navigation Compose and reusable components.
 
 ```mermaid
 flowchart TD
-    UI["Schermate Compose e ViewModel"] --> Repo["Repository"]
-    Repo --> Engine["Motore Kotlin"]
-    Engine <--> Store[("File locali: storico e avanzamento")]
-    Engine --> Network["Client Google Flights · OkHttp"]
+    UI["Compose screens and ViewModel"] --> Repo["Repository"]
+    Repo --> Engine["Kotlin engine"]
+    Engine <--> Store[("Local files: history and progress")]
+    Engine --> Network["Google Flights client · OkHttp"]
 ```
 
-Le richieste verso Google partono direttamente dal dispositivo; non passano dal portale web.
+Requests to Google go directly from the device; they do not pass through the web app.
 
-| Ambito | Tecnologie e responsabilità |
+| Area | Technologies and responsibilities |
 |---|---|
-| **Interfaccia** | Jetpack Compose, Material 3, Navigation Compose, anteprime con `@DevicePreview`. |
-| **Stato e attività** | ViewModel, Coroutines e Flow; esecuzione seriale del lavoro di ricerca. |
-| **Dipendenze** | Hilt e moduli dedicati. |
-| **Rete e serializzazione** | OkHttp e Kotlin Serialization; costruzione delle query e lettura delle risposte Google. |
-| **Persistenza** | File JSON per i lavori; DataStore per il consenso e la preferenza del tema. |
-| **Verifica** | JUnit e fixture generate dal motore Python di riferimento. |
+| **Interface** | Jetpack Compose, Material 3, Navigation Compose, previews with `@DevicePreview`. |
+| **State and execution** | ViewModel, Coroutines and Flow; serial execution of search jobs. |
+| **Dependencies** | Hilt and dedicated modules. |
+| **Networking and serialization** | OkHttp and Kotlin Serialization; query construction and Google response parsing. |
+| **Persistence** | JSON files for jobs; DataStore for consent and theme preferences. |
+| **Verification** | JUnit and fixtures generated by the reference Python engine. |
 
-### Organizzazione del codice
+### Code organization
 
-Package principale: **`it.gzanee.flightfinder`**, in [app/src/main/java/it/gzanee/flightfinder](app/src/main/java/it/gzanee/flightfinder).
+Main package: **`it.gzanee.flightfinder`**, in [app/src/main/java/it/gzanee/flightfinder](app/src/main/java/it/gzanee/flightfinder).
 
-| Cartella | Contenuto |
+| Directory | Contents |
 |---|---|
-| `domain/model` | Richieste, voli, viaggi, piani, lavori e pagine di risultati. |
-| `domain/repository` | Contratti per ricerche, catalogo, persistenza e tema. |
-| `domain/search` | Motore Kotlin: validazione, pianificazione, combinazione delle tratte, filtri e avanzamento. |
-| `data/google` | Query, lettura delle risposte, client HTTP, consenso, cache e gestione dei blocchi. |
-| `data/storage` | Storico delle ricerche in file JSON e cookie di consenso in DataStore. |
-| `data/repository` | Implementazioni dei repository e gestione del tema. |
-| `data/di` | Moduli Hilt e dipendenze del progetto. |
-| `ui/navigation` | Navigation Compose e destinazioni di navigazione. |
-| `ui/screens` | Ricerca, aeroporti, risultati, dettaglio viaggio, storico e diagnostica. |
-| `ui/components · ui/format · ui/preview · ui/theme` | Componenti condivisi, formattazione, anteprime e tema chiaro/scuro. |
+| `domain/model` | Requests, flights, trips, plans, jobs and result pages. |
+| `domain/repository` | Contracts for searches, catalog, persistence and theme. |
+| `domain/search` | Kotlin engine: validation, planning, flight matching, filters and progress. |
+| `data/google` | Queries, response parsing, HTTP client, consent, cache and block handling. |
+| `data/storage` | Search history in JSON files and consent cookies in DataStore. |
+| `data/repository` | Repository implementations and theme management. |
+| `data/di` | Hilt modules and project dependencies. |
+| `ui/navigation` | Navigation Compose and navigation destinations. |
+| `ui/screens` | Search, airports, results, trip details, history and diagnostics. |
+| `ui/components · ui/format · ui/preview · ui/theme` | Shared components, formatting, previews and light/dark themes. |
 
-Ogni schermata distingue il componente collegato al ViewModel (`XxxScreen`) dal contenuto di presentazione (`XxxScreenContent`), dove previsto, per favorire anteprime e riuso.
+Where applicable, each screen separates the ViewModel-connected component (`XxxScreen`) from its presentation content (`XxxScreenContent`) to support previews and reuse.
 
 <details>
-<summary><strong>I componenti del motore e i dati condivisi con il portale</strong></summary>
+<summary><strong>Engine components and data shared with the web app</strong></summary>
 
-| Componente | Responsabilità |
+| Component | Responsibility |
 |---|---|
-| `AirportCatalog` | Aeroporti, paesi, rotte e autocomplete. |
-| `Validation` | Controlli sulla richiesta e messaggi di errore. |
-| `Planner` | Coppie di date, gruppi di aeroporti e piano delle richieste. |
-| `Matching` | Verifica delle tratte e composizione dei viaggi A/R. |
-| `ResultBrowser` | Filtri, gruppi, suggerimenti e calendario. |
-| `SearchRunner` | Esecuzione, avanzamento, ripresa e ricontrollo. |
+| `AirportCatalog` | Airports, countries, routes and autocomplete. |
+| `Validation` | Request checks and error messages. |
+| `Planner` | Date pairs, airport groups and request planning. |
+| `Matching` | Flight checks and round-trip matching. |
+| `ResultBrowser` | Filters, groups, suggestions and calendar. |
+| `SearchRunner` | Execution, progress, resume and rechecks. |
 
-- [data/catalog](data/catalog): aeroporti, compagnie, rotte e paesi esportati dal portale e inclusi negli asset dell'app.
-- [data/fixtures](data/fixtures): casi di riferimento usati nei test.
-- [tools](tools): script per rigenerare catalogo e fixture.
+- [data/catalog](data/catalog): airports, airlines, routes and countries exported from the web app and bundled in the Android app's assets.
+- [data/fixtures](data/fixtures): reference cases used in tests.
+- [tools](tools): scripts to regenerate the catalog and fixtures.
 
-L'app utilizza uno **snapshot del catalogo** del portale: non aggiorna le rotte da Wikipedia durante l'uso.
+The app uses a **snapshot of the web app's catalog**: it does not refresh routes from Wikipedia at runtime.
 
 </details>
 
-## Test
+## Tests
 
-Per eseguire i test unitari:
+To run unit tests:
 
 ```bash
 ./gradlew :app:testDebugUnitTest
 ```
 
-La suite confronta il motore Kotlin con casi di riferimento generati dal portale Python: richieste, parsing delle risposte, risultati, filtri e comportamento della ricerca.
+The suite compares the Kotlin engine with reference cases generated by the Python web app: requests, response parsing, results, filters and search behavior.
 
 <details>
-<summary><strong>Copertura dei casi di riferimento e rigenerazione delle fixture</strong></summary>
+<summary><strong>Reference-case coverage and fixture regeneration</strong></summary>
 
-Sono test JUnit che confrontano il motore con il portale, su casi generati dal
-portale stesso (`tools/golden_*.py`, già salvati in `data/fixtures`):
+JUnit tests compare the engine against cases generated by the web app
+(`tools/golden_*.py`, already saved in `data/fixtures`):
 
-- le richieste tfs sono identiche byte per byte;
-- le pagine Google sintetiche coprono difetti e casi limite: orari ambigui al
-  cambio dell'ora, compagnie e aeroporti sconosciuti, valute, involucri vuoti
-  o rotti. C'è anche una pagina reale catturata da una connessione di casa;
-- 8 ricerche complete contro un Google finto danno le stesse richieste, gli
-  stessi viaggi, gli stessi prezzi e le stesse viste dei risultati;
-- 300 insiemi casuali di viaggi coprono filtri, ordinamenti e suggerimenti;
-- validazione delle richieste (messaggi d'errore compresi), autocomplete e paesi;
-- comportamento di rete: blocchi, ripetizioni, consenso, cache e ricontrollo.
+- tfs requests are byte-for-byte identical;
+- synthetic Google pages cover failures and edge cases: ambiguous times
+  around daylight-saving changes, unknown airlines and airports, currencies,
+  and empty or malformed response wrappers. There is also a real page
+  captured using a home connection;
+- 8 complete searches against a fake Google service produce the same
+  requests, trips, prices and result views;
+- 300 random sets of trips cover filters, sorting and suggestions;
+- request validation (including error messages), autocomplete and countries;
+- network behavior: blocks, retries, consent, cache and rechecks.
 
-Se cambi il motore del portale, lancia `bash tools/golden.sh` per rigenerare i
-casi. Lo script cerca il portale con il suo `.venv` in `../flight-finder`,
-oppure dove indica `FLIGHT_FINDER_PORTAL`; con l'argomento `dati` riesporta
-anche il catalogo. Poi porta la stessa modifica in `domain/search`: i test
-diranno dove i due divergono.
+When changing the web engine, run `bash tools/golden.sh` to regenerate cases.
+The script looks for the web app and its `.venv` in `../flight-finder`,
+or at `FLIGHT_FINDER_PORTAL`; the `dati` argument also re-exports the catalog.
+Then port the same change to `domain/search`: tests identify where the
+two implementations diverge.
 
 </details>
 
-## Dati e limiti
+## Data and limitations
 
-### Prezzi e disponibilità
+### Prices and availability
 
-L'app legge quotazioni da Google Flights: **non è una conferma diretta della compagnia e non effettua prenotazioni**. Prezzo, disponibilità e condizioni vanno ricontrollati sull'offerta prima dell'acquisto.
+The app reads Google Flights quotes: **these are not direct airline confirmations, and the app does not make bookings**. Recheck prices, availability and conditions on the offer before purchasing.
 
-Il totale A/R mostrato dal motore combina due tratte di sola andata. Il confronto con una tariffa A/R unica è un'indicazione separata: non va confuso con il prezzo dei due voli visualizzati.
+The engine's displayed round-trip total combines two one-way flights. The comparison with a single round-trip fare is a separate indication; it is not the price of the two displayed flights.
 
-### Aeroporti e modalità Ovunque
+### Airports and Anywhere mode
 
-Gli aeroporti di partenza sono configurabili: Venezia e Treviso non limitano la ricerca. **Ovunque**, invece, parte dai cataloghi e dagli insiemi di destinazioni disponibili, che **non garantiscono copertura esaustiva** di tutte le rotte. Puoi selezionare destinazioni esplicite anche fuori da quel bacino.
+Departure airports are configurable: Venice and Treviso do not restrict searches. **Anywhere**, however, uses the available catalogs and destination sets, which **do not guarantee exhaustive coverage** of every route. You can select explicit destinations outside that pool.
 
-### Esecuzione in background
+### Background execution
 
-Android può interrompere il processo quando l'app passa in background. In quel caso il lavoro compare come **Interrotto** nello storico e può ripartire con **Riprendi**, conservando i viaggi già trovati. L'app non promette ricerche continuative in background.
+Android may terminate the process when the app moves to the background. The job then appears as **Interrupted** ("Interrotto") in the history and can restart with **Resume** ("Riprendi"), retaining trips already found. The app does not promise continuous background searches.
 
-### Blocchi e consenso
+### Blocks and consent
 
-- Una risposta **403/429** interrompe la ricerca e attiva una pausa di **15 minuti**.
-- Reti aziendali, VPN e condizioni della connessione possono influenzare l'accesso; non è garantita l'assenza di blocchi.
-- Il client gestisce il consenso cookie con il valore **“Rifiuta tutto”** e ripete l'handshake quando necessario, seguendo il comportamento del portale.
+- A **403/429** response interrupts the search and triggers a **15-minute** pause.
+- Corporate networks, VPNs and connection conditions may affect access; freedom from blocks is not guaranteed.
+- The client handles cookie consent with **"Reject all"** and repeats the handshake when needed, following the web app's behavior.
 
-### Differenze rispetto al portale web
+### Differences from the web app
 
-| Funzione | App Android |
+| Feature | Android app |
 |---|---|
-| Ricerca, risultati, filtri, calendario e ricontrollo | Disponibili nell'app. |
-| Esportazione PDF | Non inclusa; il singolo viaggio può essere condiviso. |
-| Aggiornamento rotte da Wikipedia | Non incluso; viene usato il catalogo esportato. |
-| Loghi delle compagnie | Non inclusi. |
+| Search, results, filters, calendar and rechecks | Available in the app. |
+| PDF export | Not included; individual trips can be shared. |
+| Wikipedia route updates | Not included; uses the exported catalog. |
+| Airline logos | Not included. |
 
-Il progetto è in sviluppo ed è pensato per uso personale e sperimentazione. Per provarlo, installa l'app da Android Studio oppure genera l'APK.
+The project is in development and intended for personal use and experimentation. To try it, install from Android Studio or build the APK.
 
-## Il progetto
+## About the project
 
-Questa app porta sul telefono il motore del [portale Flight Finder](https://github.com/gzanee/Flight-Finder), senza richiederne l'esecuzione. È un progetto personale in sviluppo, realizzato anche con il supporto di agenti AI.
-
+This app brings the [Flight Finder web app's](https://github.com/gzanee/Flight-Finder) engine to your phone without requiring the web app to run. It is a personal project in development, built with support from AI coding agents.

@@ -1,18 +1,23 @@
 package it.gzanee.flightfinder.ui.screens.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,37 +32,50 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import it.gzanee.flightfinder.ui.format.long
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
+import it.gzanee.flightfinder.ui.theme.FlightFinderType
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-/** Campo che apre il selettore di data o ora. */
+/** Riquadro tenue con l'etichetta piccola sopra il valore; il tocco apre il selettore. */
 @Composable
-private fun PickerBox(label: String?, text: String, isPlaceholder: Boolean, modifier: Modifier, onClear: (() -> Unit)?, onClick: () -> Unit) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        if (label != null) FieldLabel(label)
-        Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).border(1.dp, colors.border, RoundedCornerShape(12.dp))
-                .background(colors.surface).clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text, color = if (isPlaceholder) colors.textTertiary else colors.textPrimary, fontSize = 16.sp, maxLines = 1, modifier = Modifier.weight(1f))
-            if (onClear != null && !isPlaceholder) Text("×", color = colors.textSecondary, fontSize = 16.sp, modifier = Modifier.clickable(onClick = onClear))
+private fun PickerBox(label: String?, text: String, isPlaceholder: Boolean, icon: ImageVector, modifier: Modifier, onClear: (() -> Unit)?, onClick: () -> Unit) {
+    Row(
+        modifier.fillMaxWidth().heightIn(min = 60.dp).clip(FieldShape).background(colors.surfaceVariant)
+            .clickable(role = Role.Button, onClick = onClick).padding(start = 12.dp, end = 10.dp, top = 9.dp, bottom = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            if (label != null) Text(label, style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(
+                text,
+                style = if (isPlaceholder) FlightFinderType.body else FlightFinderType.titleSm.copy(fontFeatureSettings = "tnum"),
+                color = if (isPlaceholder) colors.textTertiary else colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+        }
+        if (onClear != null && !isPlaceholder) {
+            Icon(Icons.Filled.Close, contentDescription = "Cancella", tint = colors.textSecondary, modifier = Modifier.size(32.dp).clickable(onClick = onClear).padding(7.dp))
+        } else {
+            Icon(icon, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(20.dp))
         }
     }
 }
+
+private val SHORT_DATE = DateTimeFormatter.ofPattern("EEE d MMM", Locale.ITALIAN)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateField(label: String?, value: LocalDate, minimum: LocalDate?, modifier: Modifier = Modifier, onValueChange: (LocalDate) -> Unit) {
     var open by remember { mutableStateOf(false) }
-    PickerBox(label, value.long(), false, modifier, null) { open = true }
+    PickerBox(label, value.format(SHORT_DATE), false, Icons.Outlined.CalendarMonth, modifier, null) { open = true }
     if (!open) return
     val minMillis = minimum?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
     val state = rememberDatePickerState(
@@ -72,10 +90,22 @@ fun DateField(label: String?, value: LocalDate, minimum: LocalDate?, modifier: M
             TextButton(onClick = {
                 state.selectedDateMillis?.let { onValueChange(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) }
                 open = false
-            }) { Text("OK") }
+            }) { Text("OK", color = colors.brand) }
         },
-        dismissButton = { TextButton(onClick = { open = false }) { Text("Annulla") } },
-    ) { DatePicker(state = state, showModeToggle = false) }
+        dismissButton = { TextButton(onClick = { open = false }) { Text("Annulla", color = colors.textSecondary) } },
+        colors = DatePickerDefaults.colors(containerColor = colors.surface),
+    ) {
+        DatePicker(
+            state = state,
+            showModeToggle = false,
+            colors = DatePickerDefaults.colors(
+                containerColor = colors.surface,
+                selectedDayContainerColor = colors.brandFill,
+                todayDateBorderColor = colors.brand,
+                todayContentColor = colors.brand,
+            ),
+        )
+    }
 }
 
 private val HH_MM = DateTimeFormatter.ofPattern("HH:mm")
@@ -92,19 +122,20 @@ fun TimeField(
     onValueChange: (LocalTime) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
-    PickerBox(label, value?.format(HH_MM) ?: placeholder, value == null, modifier, onClear) { open = true }
+    PickerBox(label, value?.format(HH_MM) ?: placeholder, value == null, Icons.Outlined.Schedule, modifier, onClear) { open = true }
     if (!open) return
     val start = value ?: LocalTime.NOON
     val state = rememberTimePickerState(start.hour, start.minute, is24Hour = true)
     AlertDialog(
         onDismissRequest = { open = false },
+        containerColor = colors.surface,
         confirmButton = {
             TextButton(onClick = {
                 onValueChange(LocalTime.of(state.hour, state.minute))
                 open = false
-            }) { Text("OK") }
+            }) { Text("OK", color = colors.brand) }
         },
-        dismissButton = { TextButton(onClick = { open = false }) { Text("Annulla") } },
+        dismissButton = { TextButton(onClick = { open = false }) { Text("Annulla", color = colors.textSecondary) } },
         text = { TimePicker(state = state) },
     )
 }

@@ -1,16 +1,25 @@
 package it.gzanee.flightfinder.ui.screens.place
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.LocalAirport
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,9 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.gzanee.flightfinder.domain.search.MAX_DESTINATIONS
 import it.gzanee.flightfinder.domain.search.MAX_ORIGINS
@@ -31,15 +39,25 @@ import it.gzanee.flightfinder.ui.format.count
 import it.gzanee.flightfinder.ui.format.flagOf
 import it.gzanee.flightfinder.ui.preview.DevicePreview
 import it.gzanee.flightfinder.ui.screens.components.BannerTone
+import it.gzanee.flightfinder.ui.screens.components.ChipGroup
+import it.gzanee.flightfinder.ui.screens.components.CodeBadge
+import it.gzanee.flightfinder.ui.screens.components.FieldShape
+import it.gzanee.flightfinder.ui.screens.components.FlagTile
+import it.gzanee.flightfinder.ui.screens.components.FlightFinderButton
+import it.gzanee.flightfinder.ui.screens.components.FlightFinderCard
+import it.gzanee.flightfinder.ui.screens.components.FlightFinderChip
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderScaffold
-import it.gzanee.flightfinder.ui.screens.components.HeaderAction
 import it.gzanee.flightfinder.ui.screens.components.HintText
+import it.gzanee.flightfinder.ui.screens.components.IconTile
 import it.gzanee.flightfinder.ui.screens.components.InfoBanner
+import it.gzanee.flightfinder.ui.screens.components.Overline
+import it.gzanee.flightfinder.ui.screens.components.fieldColors
 import it.gzanee.flightfinder.ui.screens.search.PlaceChoice
 import it.gzanee.flightfinder.ui.screens.search.PlaceKind
 import it.gzanee.flightfinder.ui.screens.search.SearchViewModel
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import it.gzanee.flightfinder.ui.theme.FlightFinderTheme
+import it.gzanee.flightfinder.ui.theme.FlightFinderType
 
 /** Aggiunge una partenza o una destinazione: città, aeroporto, codice IATA o (per le destinazioni) un paese intero. */
 @Composable
@@ -95,57 +113,86 @@ fun PlaceScreenContent(
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     FlightFinderScaffold(
         title = if (isOrigin) "Da dove parti" else "Dove vuoi andare",
-        subtitle = null,
+        subtitle = if (isOrigin) "Aeroporti di partenza" else "Città, aeroporti o paesi interi",
         onBack = onBack,
-        action = HeaderAction(Icons.Filled.Check, "Fine", onBack),
         onToggleTheme = onToggleTheme,
     ) {
-        Column(Modifier.fillMaxWidth().weight(1f).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                singleLine = true,
-                placeholder = { Text(if (isOrigin) "Città, aeroporto o codice" else "Città, aeroporto, codice o paese", color = colors.textTertiary) },
-                modifier = Modifier.fillMaxWidth().focusRequester(focus),
-            )
-            if (limitReached) InfoBanner("Hai raggiunto il numero massimo di aeroporti.", BannerTone.BAD)
-            if (chosen.isNotEmpty()) {
-                HintText("Scelti: " + chosen.joinToString(", ") { if (it is PlaceChoice.Country) "${it.label} (${it.codes.size})" else "${it.label} ${it.codes.single()}" })
+        LazyColumn(
+            Modifier.fillMaxWidth().weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    singleLine = true,
+                    textStyle = FlightFinderType.body.copy(fontSize = FlightFinderType.titleSm.fontSize, color = colors.textPrimary),
+                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = colors.brand) },
+                    placeholder = { Text(if (isOrigin) "Cerca aeroporto, città o codice IATA" else "Cerca città, paese o aeroporto", style = FlightFinderType.body, color = colors.textTertiary) },
+                    shape = FieldShape,
+                    colors = fieldColors(),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                )
             }
-            if (query.trim().length >= 2 && hits.isEmpty()) HintText("Nessun aeroporto trovato. Prova con il nome inglese o il codice IATA.")
-            LazyColumn {
-                items(hits, key = { it.key }) { hit ->
-                    Row(
-                        Modifier.fillMaxWidth().clickable(enabled = !limitReached) { onPick(hit) }.padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            when (hit) {
-                                is PlaceHit.Country -> {
-                                    Text(hit.name, color = colors.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                                    Text(
-                                        if (hit.linked) "Tutto il paese · ${count(hit.airports.size, "aeroporto collegato", "aeroporti collegati")}"
-                                        else "Senza voli diretti noti · ${hit.airports.map { it.city }.distinct().joinToString(", ")}",
-                                        color = colors.textSecondary, fontSize = 13.sp, maxLines = 1,
-                                    )
-                                }
-                                is PlaceHit.Airport -> {
-                                    Text(hit.city.ifEmpty { hit.name }, color = colors.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                                    Text(hit.name, color = colors.textSecondary, fontSize = 13.sp, maxLines = 1)
-                                }
+            if (limitReached) item { InfoBanner("Hai raggiunto il numero massimo di aeroporti.", BannerTone.BAD) }
+            if (chosen.isNotEmpty()) {
+                item {
+                    Column(Modifier.padding(top = 8.dp, bottom = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Overline("Selezionati (${chosen.size})")
+                        ChipGroup {
+                            chosen.forEach {
+                                FlightFinderChip(it.label, detail = if (it is PlaceChoice.Country) "${it.codes.size} aeroporti" else it.codes.single(), selected = true)
                             }
                         }
-                        Text(
-                            when (hit) {
-                                is PlaceHit.Country -> flagOf(hit.country)
-                                is PlaceHit.Airport -> hit.code
-                            },
-                            color = colors.brand, fontWeight = FontWeight.ExtraBold, fontSize = if (hit is PlaceHit.Country) 22.sp else 15.sp,
-                        )
                     }
-                    HorizontalDivider(color = colors.border)
                 }
             }
+            if (query.trim().length >= 2 && hits.isEmpty()) item { HintText("Nessun aeroporto trovato. Prova con il nome inglese o il codice IATA.") }
+            if (hits.isNotEmpty()) item { Overline("Risultati", Modifier.padding(top = 8.dp)) }
+            items(hits, key = { it.key }) { hit -> HitRow(hit, enabled = !limitReached) { onPick(hit) } }
+        }
+        Column(Modifier.fillMaxWidth().background(colors.surface).imePadding().navigationBarsPadding()) {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+            FlightFinderButton(
+                if (chosen.isEmpty()) "Fatto" else "Conferma (${count(chosen.size, if (isOrigin) "partenza" else "meta", if (isOrigin) "partenze" else "mete")})",
+                onBack, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), leadingIcon = Icons.Outlined.CheckCircle,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HitRow(hit: PlaceHit, enabled: Boolean, onClick: () -> Unit) {
+    FlightFinderCard(onClick = if (enabled) onClick else null, contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            when (hit) {
+                is PlaceHit.Country -> FlagTile(flagOf(hit.country))
+                is PlaceHit.Airport -> IconTile(Icons.Outlined.LocalAirport)
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                when (hit) {
+                    is PlaceHit.Country -> {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(hit.name, style = FlightFinderType.titleSm, color = colors.textPrimary)
+                            CodeBadge(if (hit.linked) "PAESE" else "SENZA DIRETTI")
+                        }
+                        Text(
+                            if (hit.linked) "Tutto il paese · ${count(hit.airports.size, "aeroporto collegato", "aeroporti collegati")}"
+                            else hit.airports.map { it.city }.distinct().joinToString(", "),
+                            style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    is PlaceHit.Airport -> {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(hit.city.ifEmpty { hit.name }, style = FlightFinderType.titleSm, color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                            CodeBadge(hit.code)
+                        }
+                        Text(hit.name, style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            }
+            Icon(Icons.Filled.Add, contentDescription = "Aggiungi", tint = if (enabled) colors.brand else colors.textTertiary, modifier = Modifier.size(22.dp))
         }
     }
 }

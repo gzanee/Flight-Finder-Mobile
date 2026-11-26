@@ -22,6 +22,9 @@ import it.gzanee.flightfinder.ui.screens.components.FlightFinderCard
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderScaffold
 import it.gzanee.flightfinder.ui.screens.components.HintText
 import it.gzanee.flightfinder.ui.screens.components.InfoBanner
+import it.gzanee.flightfinder.ui.screens.components.Overline
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.NetworkCheck
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import it.gzanee.flightfinder.ui.theme.FlightFinderTheme
 
@@ -35,16 +38,21 @@ fun DiagnosticsScreen(viewModel: DiagnosticsViewModel, onBack: () -> Unit, onTog
 /** Una sola ricerca vera, per sapere se Google risponde a questo telefono. */
 @Composable
 fun DiagnosticsScreenContent(result: ConnectionTest?, isLoading: Boolean, onRun: () -> Unit = {}, onBack: () -> Unit = {}, onToggleTheme: () -> Unit = {}) {
-    FlightFinderScaffold(title = "Prova connessione", subtitle = null, onBack = onBack, onToggleTheme = onToggleTheme) {
+    FlightFinderScaffold(title = "Prova connessione", subtitle = "Una ricerca reale su Google Flights", onBack = onBack, onToggleTheme = onToggleTheme) {
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             HintText("Una sola ricerca reale, Venezia → Barcellona tra 30 giorni, dalla connessione di questo telefono. Serve a capire se Google risponde prima di avviare ricerche lunghe.")
-            FlightFinderButton("Prova adesso", onRun, Modifier.fillMaxWidth(), isLoading = isLoading)
+            FlightFinderButton("Prova adesso", onRun, Modifier.fillMaxWidth(), isLoading = isLoading, leadingIcon = Icons.Outlined.NetworkCheck)
             when (result?.ok) {
                 true -> InfoBanner("Google risponde: le ricerche funzionano da questa rete.", BannerTone.GOOD)
                 false -> InfoBanner("La prova non è riuscita. Se Google limita le richieste, aspetta un quarto d’ora o prova con un’altra rete (Wi-Fi o dati mobili).", BannerTone.BAD)
                 null -> Unit
             }
-            if (result != null) FlightFinderCard { result.lines.forEach { Text(it, color = colors.textPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace) } }
+            if (result != null) {
+                FlightFinderCard {
+                    Overline("Risposta di Google")
+                    result.lines.forEach { Text(it, color = colors.textPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace) }
+                }
+            }
         }
     }
 }

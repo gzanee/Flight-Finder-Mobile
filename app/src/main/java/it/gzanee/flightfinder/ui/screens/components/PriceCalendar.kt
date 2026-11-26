@@ -1,26 +1,28 @@
 package it.gzanee.flightfinder.ui.screens.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import it.gzanee.flightfinder.domain.model.CalendarPrice
-import it.gzanee.flightfinder.ui.format.asEuro
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
+import it.gzanee.flightfinder.ui.theme.FlightFinderType
+import it.gzanee.flightfinder.ui.theme.TABULAR
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -28,7 +30,10 @@ import kotlin.math.roundToInt
 
 private val MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ITALIAN)
 
-/** Prezzo minimo per giorno di partenza, mese per mese: verde il terzo più economico. */
+/**
+ * Prezzo minimo per giorno di partenza, mese per mese. Il giorno più economico è pieno,
+ * il terzo più economico è tinto di blu; gli altri restano neutri.
+ */
 @Composable
 fun PriceCalendar(items: List<CalendarPrice>) {
     val byDay = items.groupBy { it.date }.mapValues { (_, list) -> list.minOf { it.price } }
@@ -36,12 +41,16 @@ fun PriceCalendar(items: List<CalendarPrice>) {
     val hi = byDay.values.max()
     val first = YearMonth.from(byDay.keys.min())
     val last = YearMonth.from(byDay.keys.max())
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        HintText("Prezzo minimo per giorno di partenza. Verde: più economico.")
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         generateSequence(first) { it.plusMonths(1) }.takeWhile { it <= last }.forEach { month ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(month.format(MONTH).replaceFirstChar { it.uppercase() }, color = colors.textPrimary, fontWeight = FontWeight.Bold)
-                Row { listOf("lun", "mar", "mer", "gio", "ven", "sab", "dom").forEach { Text(it, color = colors.textTertiary, fontSize = 11.sp, textAlign = TextAlign.Center, modifier = Modifier.weight(1f)) } }
+                Text(month.format(MONTH).replaceFirstChar { it.uppercase() }, style = FlightFinderType.title, color = colors.textPrimary)
+                Text("Prezzo più basso per giorno di partenza", style = FlightFinderType.label, color = colors.textSecondary)
+                Row(Modifier.padding(top = 8.dp)) {
+                    listOf("L", "M", "M", "G", "V", "S", "D").forEach {
+                        Text(it, style = FlightFinderType.label.copy(fontWeight = FontWeight.SemiBold), color = colors.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+                    }
+                }
                 val cells = List(month.atDay(1).dayOfWeek.value - 1) { null } + (1..month.lengthOfMonth()).map(month::atDay)
                 cells.chunked(7).forEach { week ->
                     Row {
@@ -50,20 +59,26 @@ fun PriceCalendar(items: List<CalendarPrice>) {
                             Box(Modifier.weight(1f).padding(1.5.dp)) {
                                 if (day != null) {
                                     val price = byDay[day]
-                                    val tier = when {
-                                        price == null -> colors.surface
-                                        hi == lo || price <= lo + (hi - lo) / 3 -> colors.goodSoft
-                                        price <= lo + 2 * (hi - lo) / 3 -> colors.warnSoft
-                                        else -> colors.badSoft
-                                    }
+                                    val cheapest = price != null && price == lo
+                                    val low = price != null && !cheapest && (hi == lo || price <= lo + (hi - lo) / 3)
                                     Column(
-                                        Modifier.fillMaxWidth().clip(RoundedCornerShape(6.dp)).background(tier)
-                                            .then(if (price == lo) Modifier.border(1.5.dp, colors.good, RoundedCornerShape(6.dp)) else Modifier)
-                                            .padding(vertical = 4.dp),
+                                        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                                            .background(if (cheapest) colors.brandFill else if (low) colors.surfaceStrong else Color.Transparent)
+                                            .padding(vertical = 6.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Text("${day.dayOfMonth}", color = if (price != null) colors.textPrimary else colors.textTertiary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        if (price != null) Text(price.roundToInt().toDouble().asEuro(), color = colors.textPrimary, fontSize = 9.sp, maxLines = 1)
+                                        val ink = when {
+                                            cheapest -> Color.White
+                                            price == null -> colors.textTertiary
+                                            low -> colors.brand
+                                            else -> colors.textPrimary
+                                        }
+                                        Text("${day.dayOfMonth}", style = FlightFinderType.body.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = TABULAR), color = ink)
+                                        Text(
+                                            price?.let { "${it.roundToInt()}€" } ?: " ",
+                                            style = FlightFinderType.label.copy(fontFeatureSettings = TABULAR, fontWeight = if (cheapest || low) FontWeight.SemiBold else FontWeight.Normal),
+                                            color = if (cheapest) Color.White else if (low) colors.brand else colors.textSecondary, maxLines = 1,
+                                        )
                                     }
                                 }
                             }
@@ -72,5 +87,14 @@ fun PriceCalendar(items: List<CalendarPrice>) {
                 }
             }
         }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            LegendDot(colors.brandFill)
+            Text("Il più economico", style = FlightFinderType.label, color = colors.textSecondary, modifier = Modifier.padding(start = 6.dp, end = 16.dp))
+            LegendDot(colors.surfaceStrong)
+            Text("Tra i più economici", style = FlightFinderType.label, color = colors.textSecondary, modifier = Modifier.padding(start = 6.dp))
+        }
     }
 }
+
+@Composable
+private fun LegendDot(color: Color) = Box(Modifier.size(10.dp).clip(CircleShape).background(color))

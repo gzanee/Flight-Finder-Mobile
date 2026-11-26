@@ -222,7 +222,9 @@ Departure airports are configurable: Venice and Treviso do not restrict searches
 
 ### Background execution
 
-Android may terminate the process when the app moves to the background. The job then appears as **Interrupted** ("Interrotto") in the history and can restart with **Resume** ("Riprendi"), retaining trips already found. The app does not promise continuous background searches.
+A search keeps running when you leave the app or turn the screen off: it runs in a foreground service with an ongoing notification that shows progress and a **Stop** button, and a final notification opens the results. On Android 13 and later the app asks for permission to show notifications; without it the search still runs, only the notification is hidden.
+
+If Google does not serve a single search (an unreadable page, a network change), the app retries it and, if it still fails, skips it and carries on; the results then say how many searches were skipped. The search stops only after several failures in a row, or straight away when Google limits requests. A search stopped or interrupted can restart with **Resume**, keeping the trips already found. On Android 15 a background search lasts at most six hours a day, after which it stops and can be resumed.
 
 ### Blocks and consent
 

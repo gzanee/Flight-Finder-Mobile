@@ -1,6 +1,7 @@
 package it.gzanee.flightfinder.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -21,8 +22,15 @@ import it.gzanee.flightfinder.ui.screens.search.SearchViewModel
 import it.gzanee.flightfinder.ui.screens.trip.TripScreen
 
 @Composable
-fun AppNavigation(onToggleTheme: () -> Unit = {}) {
+fun AppNavigation(onToggleTheme: () -> Unit = {}, openSearchId: String? = null, onSearchOpened: () -> Unit = {}) {
     val navController = rememberNavController()
+
+    // Toccata la notifica di una ricerca: si aprono i suoi risultati.
+    LaunchedEffect(openSearchId) {
+        val id = openSearchId ?: return@LaunchedEffect
+        navController.navigate(Screen.Results.createRoute(id)) { launchSingleTop = true }
+        onSearchOpened()
+    }
 
     NavHost(navController = navController, startDestination = Screen.Search.route) {
 

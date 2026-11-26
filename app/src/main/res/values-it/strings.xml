@@ -109,7 +109,7 @@
     <string name="field_outbound_duration">Durata andata</string>
     <string name="field_return_duration">Durata ritorno</string>
     <string name="long_search_title">Ricerca lunga</string>
-    <string name="long_search_text">Fino a %1$d richieste a Google, circa %2$s. Tieni l’app aperta: lo schermo resta acceso. I primi voli diretti arrivano subito.</string>
+    <string name="long_search_text">Fino a %1$d richieste a Google, circa %2$s. Continua in background, anche a schermo spento. I primi voli diretti arrivano subito.</string>
     <string name="hours_approx">%1$s ore</string>
     <string name="start">Avvia</string>
     <string name="your_searches">Le tue ricerche</string>
@@ -230,7 +230,7 @@
     <string name="anywhere_lower">ovunque</string>
     <string name="found_so_far">%1$s finora · ancora %2$s</string>
     <string name="now_searching">Ora: %1$s</string>
-    <string name="keep_open">Tieni l’app aperta: lo schermo resta acceso. Se esci, la ricerca si ferma e potrai riprenderla.</string>
+    <string name="keep_open">Puoi chiudere l’app o spegnere lo schermo: la ricerca continua e la segui dalle notifiche.</string>
     <string name="stop">Ferma</string>
     <string name="resume">Riprendi</string>
     <string name="pick_cheapest">Il più economico</string>
@@ -327,6 +327,17 @@
     <string name="recent_searches">Ricerche recenti</string>
     <string name="see_all">Vedi tutte</string>
     <string name="anywhere_or_pick">Oppure cerca qui sopra una città, un aeroporto o un paese intero.</string>
+    <string name="engine_skipped">Ricerche saltate perché Google non ha risposto: %1$s. Qualche volo potrebbe mancare.</string>
+    <string name="notif_channel_progress">Ricerca in corso</string>
+    <string name="notif_channel_done">Ricerca finita</string>
+    <string name="notif_searching">Cerchiamo i voli</string>
+    <string name="notif_stopping">Fermiamo la ricerca…</string>
+    <string name="notif_done">Ricerca completata</string>
+    <string name="notif_stopped">Ricerca fermata</string>
+    <string name="notif_blocked">Ricerca in pausa: Google limita le richieste</string>
+    <string name="notif_interrupted">Ricerca interrotta: puoi riprenderla</string>
+    <string name="notif_from_price">da %1$s</string>
+    <string name="eta_left">ancora %1$s</string>
     <plurals name="nights">
         <item quantity="one">%d notte</item>
         <item quantity="other">%d notti</item>

@@ -109,7 +109,7 @@
     <string name="field_outbound_duration">Outbound duration</string>
     <string name="field_return_duration">Return duration</string>
     <string name="long_search_title">Long search</string>
-    <string name="long_search_text">Up to %1$d requests to Google, about %2$s. Keep the app open: the screen stays on. The first direct flights show up right away.</string>
+    <string name="long_search_text">Up to %1$d requests to Google, about %2$s. It goes on in the background, even with the screen off. The first direct flights show up right away.</string>
     <string name="hours_approx">%1$s hours</string>
     <string name="start">Start</string>
     <string name="your_searches">Your searches</string>
@@ -230,7 +230,7 @@
     <string name="anywhere_lower">anywhere</string>
     <string name="found_so_far">%1$s so far · %2$s left</string>
     <string name="now_searching">Now: %1$s</string>
-    <string name="keep_open">Keep the app open: the screen stays on. If you leave, the search stops and you can resume it.</string>
+    <string name="keep_open">You can close the app or turn the screen off: the search goes on and you can follow it in the notifications.</string>
     <string name="stop">Stop</string>
     <string name="resume">Resume</string>
     <string name="pick_cheapest">The cheapest</string>
@@ -327,6 +327,17 @@
     <string name="recent_searches">Recent searches</string>
     <string name="see_all">See all</string>
     <string name="anywhere_or_pick">Or search above for a city, an airport or a whole country.</string>
+    <string name="engine_skipped">Searches skipped because Google did not answer: %1$s. A few flights may be missing.</string>
+    <string name="notif_channel_progress">Search in progress</string>
+    <string name="notif_channel_done">Search finished</string>
+    <string name="notif_searching">Searching for flights</string>
+    <string name="notif_stopping">Stopping the search…</string>
+    <string name="notif_done">Search complete</string>
+    <string name="notif_stopped">Search stopped</string>
+    <string name="notif_blocked">Search paused: Google is limiting requests</string>
+    <string name="notif_interrupted">Search interrupted: you can resume it</string>
+    <string name="notif_from_price">from %1$s</string>
+    <string name="eta_left">%1$s left</string>
     <plurals name="nights">
         <item quantity="one">%d night</item>
         <item quantity="other">%d nights</item>

@@ -18,7 +18,7 @@ class MainViewModel @Inject constructor(
     searchRepository: SearchRepository,
 ) : ViewModel() {
 
-    /** Vero mentre una ricerca gira: lo schermo resta acceso (Android ferma le app in background). */
+    /** Vero mentre una ricerca gira: parte il servizio che la tiene viva in background. */
     val isSearching: StateFlow<Boolean> = searchRepository.updates
         .map { it.status.isRunning }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)

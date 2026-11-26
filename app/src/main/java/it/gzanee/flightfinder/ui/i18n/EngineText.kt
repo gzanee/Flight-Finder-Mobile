@@ -47,6 +47,7 @@ private val MESSAGES = listOf(
     EngineMessage("""Ferma la ricerca prima di eliminarla\.""", R.string.engine_stop_before_delete),
     EngineMessage("""Google vende i voli fino al (\S+): le date successive non sono state cercate\.""", R.string.engine_horizon),
     EngineMessage("""Ricerca interrotta; il progresso è salvato\.""", R.string.engine_interrupted),
+    EngineMessage("""Ricerche saltate perché Google non ha risposto: (\d+)\. Qualche volo potrebbe mancare\.""", R.string.engine_skipped),
     EngineMessage("""Ricerca interrotta da un errore; il progresso è salvato\.""", R.string.engine_interrupted_error),
     EngineMessage("""App chiusa durante la ricerca: premi Riprendi per continuare\.""", R.string.engine_app_closed),
     EngineMessage("""Gli stessi voli non sono stati confermati con questi filtri\. Il risultato precedente non è più valido\.""", R.string.engine_recheck_not_confirmed),

@@ -221,7 +221,9 @@ Gli aeroporti di partenza sono configurabili: Venezia e Treviso non limitano la 
 
 ### Esecuzione in background
 
-Android può interrompere il processo quando l'app passa in background. In quel caso il lavoro compare come **Interrotto** nello storico e può ripartire con **Riprendi**, conservando i viaggi già trovati. L'app non promette ricerche continuative in background.
+La ricerca continua quando esci dall'app o spegni lo schermo: gira in un servizio in primo piano, con una notifica fissa che mostra l'avanzamento e il pulsante **Ferma**; a fine ricerca una notifica apre i risultati. Da Android 13 l'app chiede il permesso di mostrare notifiche; senza, la ricerca continua lo stesso, solo la notifica non si vede.
+
+Se Google non serve una singola ricerca (pagina illeggibile, cambio di rete), l'app la ritenta e, se non va ancora, la salta e prosegue; nei risultati dice quante ne ha saltate. Si ferma solo dopo diversi fallimenti di fila, o subito se Google limita le richieste. Una ricerca fermata o interrotta riparte con **Riprendi**, conservando i viaggi già trovati. Su Android 15 una ricerca in background dura al massimo sei ore al giorno, poi si ferma e si può riprendere.
 
 ### Blocchi e consenso
 

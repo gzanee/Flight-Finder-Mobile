@@ -14,6 +14,11 @@ import it.gzanee.flightfinder.data.google.InMemoryConsentStore
 import it.gzanee.flightfinder.domain.model.JobStatus
 import it.gzanee.flightfinder.domain.model.RecheckResult
 import it.gzanee.flightfinder.domain.search.SearchRunner
+import it.gzanee.flightfinder.domain.search.QuoteSource
+import it.gzanee.flightfinder.domain.search.QuotesUnavailableException
+import it.gzanee.flightfinder.domain.search.RouteQuotes
+import it.gzanee.flightfinder.domain.search.Route
+import it.gzanee.flightfinder.domain.model.SearchRequest
 import it.gzanee.flightfinder.domain.search.buildPlan
 import it.gzanee.flightfinder.domain.search.validated
 import kotlinx.coroutines.CoroutineScope
@@ -197,5 +202,53 @@ class GoogleFlightsClientTest {
         val view = gone.view(id)
         assertTrue(view.page.results.none { it.id == first.id })
         assertEquals(runner.get(id).results.size, view.page.resultCount + 1)
+    }
+
+    // ---- Sul telefono: pagine senza dati ritentate, ricerche illeggibili saltate (il portale invece si ferma).
+
+    private val noData = "<html><body>nessun dato</body></html>"
+
+    @Test
+    fun trattaSenzaDatiRiprovataDopoIlConsenso() = runBlocking {
+        val clock = FakeClock()
+        // 1: il gruppo senza dati si divide; 2: la prima tratta senza dati si ritenta dopo il consenso e una pausa.
+        val google = FakeGoogle { url, _, n -> if (n <= 2) HttpPage(200, url, noData) else ok(url) }
+        val found = client(google, clock).searchDay()
+        assertTrue(found.values.any { it.quotes.isNotEmpty() })
+        assertTrue(3.0 in clock.sleeps)
+        assertTrue(google.asked.any { "hl=en&gl=IT" in it.first })
+    }
+
+    /** Una fonte di prezzi che non risponde alle chiamate indicate (contate da 1). */
+    private class Flaky(private val inner: QuoteSource, private val failing: IntRange) : QuoteSource by inner {
+        private var calls = 0
+        override suspend fun searchMany(origins: List<String>, destinations: List<String>, day: LocalDate, request: SearchRequest, inbound: Boolean, fresh: Boolean): Map<Route, RouteQuotes> {
+            calls++
+            if (calls in failing) throw QuotesUnavailableException("Pagina Google senza dati voli: consenso, blocco o formato cambiato.")
+            return inner.searchMany(origins, destinations, day, request, inbound, fresh)
+        }
+    }
+
+    private fun runWith(failing: IntRange): it.gzanee.flightfinder.domain.model.SearchJob = runBlocking {
+        val source = Flaky(client(FakeGoogle.serving(served)), failing)
+        val runner = SearchRunner(InMemorySearchStore(), source, catalog, CoroutineScope(SupervisorJob()), FakeClock())
+        val id = runner.start(request, plan, today)
+        runner.idle()
+        runner.get(id)
+    }
+
+    @Test
+    fun unaRicercaIllegibileSiSaltaELaRicercaContinua() {
+        val job = runWith(2..2)
+        assertEquals(JobStatus.COMPLETE, job.status)
+        assertTrue(job.results.isNotEmpty())
+        assertEquals(listOf("Ricerche saltate perché Google non ha risposto: 1. Qualche volo potrebbe mancare."), job.issues)
+    }
+
+    @Test
+    fun troppiFallimentiDiFilaFermanoLaRicerca() {
+        val job = runWith(1..SearchRunner.MAX_FAILURES_IN_ROW)
+        assertEquals(JobStatus.INTERRUPTED, job.status)
+        assertEquals(listOf("Pagina Google senza dati voli: consenso, blocco o formato cambiato."), job.issues)
     }
 }

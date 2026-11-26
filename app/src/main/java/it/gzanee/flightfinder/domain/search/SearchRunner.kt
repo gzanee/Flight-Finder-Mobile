@@ -151,6 +151,10 @@ class SearchRunner(
         var current = job.current
         var updatedAt = job.updatedAt
 
+        /** Richieste saltate perché Google non le ha servite, e quante di fila (solo in questa sessione). */
+        var skipped = 0
+        var failuresInRow = 0
+
         fun snapshot() = base.copy(
             status = status, completed = completed, total = total, cursor = cursor, pass = pass, outbound = LinkedHashMap(outbound),
             requests = requests, returnDays = returnDays, returnRequests = returnRequests, etaSeconds = etaSeconds,
@@ -199,6 +203,9 @@ class SearchRunner(
                         "le date successive non sono state cercate.",
                 )
             }
+            if (status == JobStatus.COMPLETE && w.skipped > 0) {
+                w.issues = w.issues + "Ricerche saltate perché Google non ha risposto: ${w.skipped}. Qualche volo potrebbe mancare."
+            }
         } catch (e: CancellationException) {
             status = JobStatus.INTERRUPTED
             w.issues = listOf("Ricerca interrotta; il progresso è salvato.")
@@ -233,7 +240,7 @@ class SearchRunner(
                 for (number in batch until outs) {
                     val (origins, destinations) = schedule.outBatches[number].let { it.from to it.to }
                     if (!begin(w, pace.label + "${airportList(origins)} → ${airportList(destinations)} · $day")) return Outcome.CANCELLED
-                    keepOutbound(w, request, day, quotes.searchMany(origins, destinations, day, schedule.request))
+                    tolerant(w) { quotes.searchMany(origins, destinations, day, schedule.request) }?.let { keepOutbound(w, request, day, it) }
                     w.cursor = Cursor(index, 0, number + 1)
                     w.completed = base + number + 1
                     advance(w, schedule, pace)
@@ -247,7 +254,7 @@ class SearchRunner(
                 for (number in batch until batches.size) {
                     val (aways, homes) = batches[number].let { it.from to it.to }
                     if (!begin(w, pace.label + "Ritorno: ${airportList(aways)} → ${airportList(homes)} · $day")) return Outcome.CANCELLED
-                    combineReturns(w, request, day, quotes.searchMany(aways, homes, day, schedule.request, inbound = true), wanted)
+                    tolerant(w) { quotes.searchMany(aways, homes, day, schedule.request, inbound = true) }?.let { combineReturns(w, request, day, it, wanted) }
                     w.cursor = Cursor(index, 1, number + 1)
                     w.completed = base + outs + minOf(number + 1, schedule.backBound)
                     w.returnRequests += 1
@@ -291,6 +298,22 @@ class SearchRunner(
             progress(w)
         }
         return true
+    }
+
+    /**
+     * Una richiesta che Google non riesce a servire (dopo i tentativi del client) si salta e la
+     * ricerca continua: su un telefono capita più spesso che sul portale, che invece si ferma.
+     * Ci si ferma comunque dopo [MAX_FAILURES_IN_ROW] fallimenti di fila, o subito se Google blocca.
+     */
+    private suspend fun tolerant(w: Work, block: suspend () -> Map<Route, RouteQuotes>): Map<Route, RouteQuotes>? = try {
+        block().also { w.failuresInRow = 0 }
+    } catch (e: QuotesBlockedException) {
+        throw e
+    } catch (e: QuotesUnavailableException) {
+        w.failuresInRow += 1
+        if (w.failuresInRow >= MAX_FAILURES_IN_ROW) throw e
+        w.skipped += 1
+        null
     }
 
     private suspend fun begin(w: Work, label: String): Boolean {
@@ -423,6 +446,8 @@ class SearchRunner(
 
     companion object {
         private const val SAVE_INTERVAL = 1.0
+        /** Fallimenti di fila dopo cui la ricerca si ferma: a quel punto non è un caso isolato. */
+        const val MAX_FAILURES_IN_ROW = 4
         private const val PACE_SAMPLE = 3
         const val ROUND_TRIP_CHECKS = 150
         const val QUOTE_TTL_SECONDS = 300.0

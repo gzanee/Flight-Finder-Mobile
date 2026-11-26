@@ -30,6 +30,12 @@ class GoogleBlockedException(message: String) : QuotesBlockedException(message)
 /** Errore temporaneo di Google (ErrorResponse): si riprova dopo una pausa. */
 class GoogleTransientException(message: String) : GoogleUnavailableException(message)
 
+/**
+ * Pagina senza i dati dei voli (di solito un consenso non riconosciuto o una risposta
+ * incompleta): l'app rinnova il consenso e riprova, invece di fermare la ricerca.
+ */
+class GoogleNoDataException(message: String) : GoogleUnavailableException(message)
+
 /** Le offerte lette da una pagina e le righe scartate perché non verificabili. */
 data class GooglePage(val quotes: List<Quote>, val rejected: Int)
 
@@ -44,7 +50,7 @@ class GooglePageDecoder(private val catalog: AirportCatalog) {
 
     fun decode(html: String, request: SearchRequest, url: String, expectedRoute: Pair<List<String>, List<String>>? = null): GooglePage {
         val script = shoppingScript(html)
-            ?: throw GoogleUnavailableException("Pagina Google senza dati voli: consenso, blocco o formato cambiato.")
+            ?: throw GoogleNoDataException("Pagina Google senza dati voli: consenso, blocco o formato cambiato.")
         if ("travel.frontend.flights.ErrorResponse" in script) {
             throw GoogleTransientException("Google ha restituito un errore temporaneo anche dopo vari tentativi. Puoi premere Riprendi.")
         }

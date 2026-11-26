@@ -306,7 +306,7 @@ private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Bo
         ?.replace(Regex("\\b[A-Z0-9]{3}\\b")) { names.city(it.value) }
         ?.replace(Regex("\\d{4}-\\d{2}-\\d{2}")) { java.time.LocalDate.parse(it.value).short() }
     if (running && current != null) HintText(stringResource(R.string.now_searching, engineProgress(current)))
-    if (running) HintText(stringResource(R.string.keep_open), warn = true)
+    if (running) HintText(stringResource(R.string.keep_open))
     if (job.issues.isNotEmpty()) InfoBanner(job.issues.map { engineText(it) }.joinToString(" "))
     if (running) {
         FlightFinderButton(stringResource(R.string.stop), onCancel, Modifier.fillMaxWidth(), ButtonStyle.DANGER, enabled = job.status != JobStatus.CANCELLING, leadingIcon = Icons.Outlined.StopCircle)

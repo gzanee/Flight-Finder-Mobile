@@ -97,6 +97,7 @@ class GoogleFlightsClient(
     private suspend fun request(origins: List<String>, destinations: List<String>, day: LocalDate, request: SearchRequest, inbound: Boolean): Map<Route, RouteQuotes> {
         val query = GoogleQuery.oneWay(origins, destinations, day, request, inbound)
         var page: GooglePage? = null
+        var noData = 0
         for (attempt in 0..GOOGLE_ERROR_RETRIES) {
             val html = fetchPage(query)
             try {
@@ -106,6 +107,22 @@ class GoogleFlightsClient(
                 if (attempt == GOOGLE_ERROR_RETRIES) throw e
                 // Gli errori arrivano a raffiche: pause crescenti invece di riprovare subito.
                 clock.sleep(minOf(MAX_GOOGLE_ERROR_WAIT, (1 shl (attempt + 1)).toDouble()))
+            } catch (e: GoogleNoDataException) {
+                // Sul telefono capita (consenso non riconosciuto, rete che cambia): la prima volta
+                // si rinnova il consenso, poi si riprova dopo una pausa. Il portale invece si ferma.
+                // Un gruppo si divide subito in tratte singole (come nel portale); si ritenta la tratta singola.
+                if (origins.size * destinations.size > 1 || noData == NO_DATA_RETRIES) throw e
+                if (noData == 0) {
+                    try {
+                        consent.renew()
+                    } catch (c: CancellationException) {
+                        throw c
+                    } catch (_: Exception) {
+                        // Se il rinnovo non riesce si riprova comunque con il consenso attuale.
+                    }
+                }
+                clock.sleep(NO_DATA_WAITS[noData])
+                noData++
             }
         }
         var rejected = page!!.rejected
@@ -178,7 +195,8 @@ class GoogleFlightsClient(
                 if (attempt == NETWORK_RETRIES) {
                     throw GoogleUnavailableException("Connessione a Google non riuscita dopo vari tentativi. Puoi premere Riprendi.")
                 }
-                clock.sleep(1.5 * (attempt + 1))
+                // Sul telefono la rete cambia (Wi-Fi ↔ dati): pause più lunghe del portale.
+                clock.sleep(NETWORK_WAITS[attempt])
                 attempt++
             }
         }
@@ -192,6 +210,9 @@ class GoogleFlightsClient(
         private const val CACHE_LIMIT = 2000
         private const val NETWORK_RETRIES = 2
         private const val GOOGLE_ERROR_RETRIES = 5
+        private const val NO_DATA_RETRIES = 3
+        private val NO_DATA_WAITS = doubleArrayOf(3.0, 10.0, 30.0)
+        private val NETWORK_WAITS = doubleArrayOf(3.0, 10.0)
         private const val MAX_GOOGLE_ERROR_WAIT = 30.0
         private const val BLOCK_SECONDS = 900.0
         val BASE_HEADERS = mapOf(

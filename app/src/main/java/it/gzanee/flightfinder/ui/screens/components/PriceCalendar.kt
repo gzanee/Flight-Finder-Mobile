@@ -45,10 +45,9 @@ fun PriceCalendar(items: List<CalendarPrice>) {
         generateSequence(first) { it.plusMonths(1) }.takeWhile { it <= last }.forEach { month ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(month.format(MONTH).replaceFirstChar { it.uppercase() }, style = FlightFinderType.title, color = colors.textPrimary)
-                Text("Prezzo più basso per giorno di partenza", style = FlightFinderType.label, color = colors.textSecondary)
                 Row(Modifier.padding(top = 8.dp)) {
                     listOf("L", "M", "M", "G", "V", "S", "D").forEach {
-                        Text(it, style = FlightFinderType.label.copy(fontWeight = FontWeight.SemiBold), color = colors.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+                        Text(it, style = FlightFinderType.overline, color = colors.textTertiary, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
                     }
                 }
                 val cells = List(month.atDay(1).dayOfWeek.value - 1) { null } + (1..month.lengthOfMonth()).map(month::atDay)
@@ -62,22 +61,21 @@ fun PriceCalendar(items: List<CalendarPrice>) {
                                     val cheapest = price != null && price == lo
                                     val low = price != null && !cheapest && (hi == lo || price <= lo + (hi - lo) / 3)
                                     Column(
-                                        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
-                                            .background(if (cheapest) colors.brandFill else if (low) colors.surfaceStrong else Color.Transparent)
-                                            .padding(vertical = 6.dp),
+                                        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                                            .background(if (cheapest) colors.brandFill else if (low) colors.surfaceVariant else Color.Transparent)
+                                            .padding(vertical = 7.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
                                         val ink = when {
-                                            cheapest -> Color.White
-                                            price == null -> colors.textTertiary
-                                            low -> colors.brand
+                                            cheapest -> colors.onBrandFill
+                                            price == null -> colors.textTertiary.copy(alpha = 0.6f)
                                             else -> colors.textPrimary
                                         }
                                         Text("${day.dayOfMonth}", style = FlightFinderType.body.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = TABULAR), color = ink)
                                         Text(
                                             price?.let { "${it.roundToInt()}€" } ?: " ",
                                             style = FlightFinderType.label.copy(fontFeatureSettings = TABULAR, fontWeight = if (cheapest || low) FontWeight.SemiBold else FontWeight.Normal),
-                                            color = if (cheapest) Color.White else if (low) colors.brand else colors.textSecondary, maxLines = 1,
+                                            color = if (cheapest) colors.onBrandFill else if (low) colors.textPrimary else colors.textTertiary, maxLines = 1,
                                         )
                                     }
                                 }
@@ -89,9 +87,9 @@ fun PriceCalendar(items: List<CalendarPrice>) {
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             LegendDot(colors.brandFill)
-            Text("Il più economico", style = FlightFinderType.label, color = colors.textSecondary, modifier = Modifier.padding(start = 6.dp, end = 16.dp))
+            Text("Il più economico", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(start = 6.dp, end = 16.dp))
             LegendDot(colors.surfaceStrong)
-            Text("Tra i più economici", style = FlightFinderType.label, color = colors.textSecondary, modifier = Modifier.padding(start = 6.dp))
+            Text("Tra i più economici", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(start = 6.dp))
         }
     }
 }

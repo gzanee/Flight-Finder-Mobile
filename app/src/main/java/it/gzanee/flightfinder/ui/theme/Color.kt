@@ -2,45 +2,40 @@ package it.gzanee.flightfinder.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Palette "Quiet Flight Utility": tela chiara, inchiostro blu notte, un solo blu
-// per le azioni e l'arancio riservato ai prezzi migliori.
+// Palette quasi monocroma: tela calda, inchiostro quasi nero, l'elemento attivo
+// pieno (nero di giorno, chiaro di notte). Il colore compare solo negli stati.
 
 // ─── Light theme ───
-val CanvasLight = Color(0xFFF8F9FF)          // sfondo
-val SurfaceLight = Color(0xFFFFFFFF)         // card
-val TintLight = Color(0xFFEFF4FF)            // campi, controlli segmentati, righe in evidenza
-val TintStrongLight = Color(0xFFDCE6FF)      // chip selezionate, badge dei codici
-val InkLight = Color(0xFF0B1C30)             // testo principale
-val InkMutedLight = Color(0xFF515B70)        // testo secondario
-val InkFaintLight = Color(0xFF8A94A8)        // segnaposto, giorni vuoti
-val BorderLight = Color(0xFFE2E8F0)
-val BrandLight = Color(0xFF1E40AF)           // azioni, selezioni
-val BrandFillLight = Color(0xFF1E40AF)       // pulsante primario
-val AccentLight = Color(0xFFEA580C)          // miglior prezzo
-val AccentSoftLight = Color(0xFFFFEDE3)
-val GoodLight = Color(0xFF0F7B45)
-val GoodSoftLight = Color(0xFFE3F5EB)
-val WarnLight = Color(0xFF9A5B00)
-val WarnSoftLight = Color(0xFFFFF4E0)
-val BadLight = Color(0xFFBA1A1A)
-val BadSoftLight = Color(0xFFFFE9E6)
+val CanvasTopLight = Color(0xFFFBFAF7)
+val CanvasLight = Color(0xFFF3F2EF)
+val CanvasBottomLight = Color(0xFFE9E7E1)
+val CardLight = Color(0xFFFBFAF8)
+val InnerLight = Color(0xFFF1F0EC)        // riquadri dentro le card, chip spente
+val InnerStrongLight = Color(0xFFE7E5E0)
+val InkLight = Color(0xFF101013)
+val MutedLight = Color(0xFF68686F)
+val FaintLight = Color(0xFF9A9AA1)
+val HairlineLight = Color(0x0D101013)     // righe e bordi appena visibili
+val ActLight = Color(0xFF101013)
+val OnActLight = Color(0xFFFFFFFF)
 
 // ─── Dark theme ───
-val CanvasDark = Color(0xFF0A1220)
-val SurfaceDark = Color(0xFF111B2D)
-val TintDark = Color(0xFF18243A)
-val TintStrongDark = Color(0xFF223358)
-val InkDark = Color(0xFFE8EEFA)
-val InkMutedDark = Color(0xFF9DA9C0)
-val InkFaintDark = Color(0xFF66728A)
-val BorderDark = Color(0xFF223049)
-val BrandDark = Color(0xFFAFC0FF)
-val BrandFillDark = Color(0xFF3A5BD9)
-val AccentDark = Color(0xFFFF9A62)
-val AccentSoftDark = Color(0xFF3A2016)
-val GoodDark = Color(0xFF5FD39A)
-val GoodSoftDark = Color(0xFF12291F)
-val WarnDark = Color(0xFFF2B35A)
-val WarnSoftDark = Color(0xFF2F2312)
-val BadDark = Color(0xFFFF8A80)
-val BadSoftDark = Color(0xFF341517)
+val CanvasTopDark = Color(0xFF17171C)
+val CanvasDark = Color(0xFF0C0C0F)
+val CanvasBottomDark = Color(0xFF08080A)
+val CardDark = Color(0xFF141418)
+val InnerDark = Color(0xFF1D1D22)
+val InnerStrongDark = Color(0xFF26262C)
+val InkDark = Color(0xFFF5F5F7)
+val MutedDark = Color(0xFF9C9CA3)
+val FaintDark = Color(0xFF6E6E76)
+val HairlineDark = Color(0x14FFFFFF)
+val ActDark = Color(0xFFF5F5F7)
+val OnActDark = Color(0xFF101013)
+
+// ─── Stati (uguali nei due temi) ───
+val Confirmed = Color(0xFF2FA37A)
+val Pending = Color(0xFFE8A13A)
+val PendingInk = Color(0xFFB0700F)
+val Danger = Color(0xFFD6273B)
+val Info = Color(0xFF4A7DDB)

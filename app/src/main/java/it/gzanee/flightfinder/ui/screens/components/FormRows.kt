@@ -16,10 +16,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -45,9 +45,9 @@ import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import it.gzanee.flightfinder.ui.theme.FlightFinderType
 import java.time.DayOfWeek
 
-val FieldShape = RoundedCornerShape(12.dp)
+val FieldShape = InnerShape
 
-/** Campo di testo tenue, senza bordo finché non è attivo. */
+/** Campo di testo in un riquadro tenue; l'etichetta maiuscola sta sopra. */
 @Composable
 fun FlightFinderTextField(
     value: String,
@@ -59,16 +59,16 @@ fun FlightFinderTextField(
     numeric: Boolean = false,
     leadingIcon: ImageVector? = null,
 ) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (label != null) FieldLabel(label)
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             singleLine = true,
-            textStyle = FlightFinderType.body.copy(fontSize = FlightFinderType.titleSm.fontSize, color = colors.textPrimary),
+            textStyle = FlightFinderType.body.copy(fontSize = FlightFinderType.titleSm.fontSize, fontWeight = FontWeight.Medium, color = colors.textPrimary),
             placeholder = placeholder?.let { { Text(it, style = FlightFinderType.body, color = colors.textTertiary) } },
             suffix = suffix?.let { { Text(it, style = FlightFinderType.body, color = colors.textSecondary) } },
-            leadingIcon = leadingIcon?.let { { Icon(it, contentDescription = null, tint = colors.brand) } },
+            leadingIcon = leadingIcon?.let { { Icon(it, contentDescription = null, tint = colors.textSecondary) } },
             keyboardOptions = if (numeric) KeyboardOptions(keyboardType = KeyboardType.Decimal) else KeyboardOptions.Default,
             shape = FieldShape,
             colors = fieldColors(),
@@ -79,11 +79,11 @@ fun FlightFinderTextField(
 
 @Composable
 fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = colors.surface,
+    focusedContainerColor = colors.surfaceVariant,
     unfocusedContainerColor = colors.surfaceVariant,
-    focusedBorderColor = colors.brand,
+    focusedBorderColor = colors.brandFill,
     unfocusedBorderColor = Color.Transparent,
-    cursorColor = colors.brand,
+    cursorColor = colors.textPrimary,
     focusedTextColor = colors.textPrimary,
     unfocusedTextColor = colors.textPrimary,
 )
@@ -91,79 +91,69 @@ fun fieldColors() = OutlinedTextFieldDefaults.colors(
 /** Contatore in riga: etichetta e nota a sinistra, − valore + a destra. */
 @Composable
 fun StepperRow(label: String, value: Int, range: IntRange, hint: String? = null, onValueChange: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(label, style = FlightFinderType.body.copy(fontWeight = FontWeight.Medium), color = colors.textPrimary)
-            if (hint != null) Text(hint, style = FlightFinderType.label, color = colors.textSecondary)
+            if (hint != null) Text(hint, style = FlightFinderType.label, color = colors.textTertiary)
         }
-        StepButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", value > range.first) { onValueChange(value - 1) }
-        Text("$value", style = FlightFinderType.time.copy(fontSize = FlightFinderType.titleSm.fontSize), color = colors.textPrimary, modifier = Modifier.padding(horizontal = 14.dp))
-        StepButton(Icons.Filled.Add, "Più ${label.lowercase()}", value < range.last) { onValueChange(value + 1) }
+        RoundIconButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 34.dp, enabled = value > range.first)
+        Text("$value", style = FlightFinderType.title.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary, modifier = Modifier.padding(horizontal = 14.dp))
+        RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 34.dp, enabled = value < range.last)
     }
 }
 
-/** Contatore compatto in un riquadro tenue (es. Minimo 2 notti). */
+/** Contatore in un riquadro: etichetta maiuscola, numero grande, − e + tondi sulla stessa riga. */
 @Composable
 fun StepperBox(label: String, value: Int, unit: String, range: IntRange, modifier: Modifier = Modifier, onValueChange: (Int) -> Unit) {
-    Row(
-        modifier.clip(FieldShape).background(colors.surfaceVariant).padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(label, style = FlightFinderType.label, color = colors.textSecondary)
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text("$value", style = FlightFinderType.time, color = colors.textPrimary)
-                Text(" $unit", style = FlightFinderType.label, color = colors.textSecondary, modifier = Modifier.padding(bottom = 3.dp))
+    Column(modifier.clip(FieldShape).background(colors.surfaceVariant).padding(start = 14.dp, end = 10.dp, top = 12.dp, bottom = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        FieldLabel(label)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.Bottom) {
+                Text("$value", style = FlightFinderType.headline.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary)
+                Text(" $unit", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(bottom = 4.dp))
             }
+            RoundIconButton(
+                Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 32.dp, tinted = false, enabled = value > range.first,
+                modifier = Modifier.border(1.dp, colors.surfaceStrong, CircleShape),
+            )
+            Box(Modifier.size(6.dp))
+            RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 32.dp, filled = true, enabled = value < range.last)
         }
-        StepButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", value > range.first, filledOnTint = true) { onValueChange(value - 1) }
-        Box(Modifier.size(6.dp))
-        StepButton(Icons.Filled.Add, "Più ${label.lowercase()}", value < range.last, filledOnTint = true) { onValueChange(value + 1) }
     }
 }
 
-@Composable
-private fun StepButton(icon: ImageVector, description: String, enabled: Boolean, filledOnTint: Boolean = false, onClick: () -> Unit) {
-    Box(
-        Modifier.size(36.dp).clip(RoundedCornerShape(10.dp))
-            .background(if (filledOnTint) colors.surfaceStrong else colors.surfaceVariant)
-            .clickable(enabled = enabled, role = Role.Button, onClickLabel = description, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) { Icon(icon, contentDescription = description, tint = if (enabled) colors.textPrimary else colors.textTertiary, modifier = Modifier.size(18.dp)) }
-}
-
+/** Interruttore come in TREK: binario pieno quando è acceso, pomello chiaro. */
 @Composable
 fun ToggleRow(label: String, checked: Boolean, hint: String? = null, onCheckedChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(role = Role.Switch) { onCheckedChange(!checked) }.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f).padding(end = 12.dp)) {
+    Row(Modifier.fillMaxWidth().clickable(role = Role.Switch) { onCheckedChange(!checked) }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).padding(end = 14.dp)) {
             Text(label, style = FlightFinderType.body.copy(fontWeight = FontWeight.Medium), color = colors.textPrimary)
-            if (hint != null) Text(hint, style = FlightFinderType.label, color = colors.textSecondary)
+            if (hint != null) Text(hint, style = FlightFinderType.label, color = colors.textTertiary)
         }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
                 checkedTrackColor = colors.brandFill,
-                checkedThumbColor = Color.White,
-                uncheckedTrackColor = colors.surfaceVariant,
-                uncheckedThumbColor = colors.textTertiary,
-                uncheckedBorderColor = colors.border,
+                checkedThumbColor = colors.onBrandFill,
+                checkedBorderColor = Color.Transparent,
+                uncheckedTrackColor = colors.surfaceStrong,
+                uncheckedThumbColor = Color.White,
+                uncheckedBorderColor = Color.Transparent,
             ),
         )
     }
 }
 
-/** Opzioni a scelta singola come righe separate: la scelta è tinta di blu, con il segno di spunta. */
+/** Opzioni a scelta singola: righe dentro un unico riquadro, separate da un filo. */
 @Composable
 fun <T> OptionList(options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        options.forEach { (value, label) ->
+    Column(Modifier.fillMaxWidth().clip(FieldShape).background(colors.surfaceVariant)) {
+        options.forEachIndexed { index, (value, label) ->
             val on = value == selected
+            if (index > 0) Hairline(Modifier.padding(horizontal = 14.dp))
             Row(
-                Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(FieldShape)
-                    .background(if (on) colors.surfaceVariant else colors.surface)
-                    .border(1.dp, if (on) colors.brand else colors.border, FieldShape)
-                    .clickable(role = Role.RadioButton) { onSelect(value) }.padding(horizontal = 14.dp, vertical = 12.dp),
+                Modifier.fillMaxWidth().heightIn(min = 50.dp).clickable(role = Role.RadioButton) { onSelect(value) }.padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(label, style = FlightFinderType.body.copy(fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal), color = colors.textPrimary, modifier = Modifier.weight(1f))
@@ -179,9 +169,9 @@ fun SelectionMark(selected: Boolean, modifier: Modifier = Modifier) {
     Box(
         modifier.size(22.dp).clip(CircleShape)
             .background(if (selected) colors.brandFill else Color.Transparent)
-            .then(if (selected) Modifier else Modifier.border(1.5.dp, colors.border, CircleShape)),
+            .then(if (selected) Modifier else Modifier.border(1.5.dp, colors.textTertiary.copy(alpha = 0.6f), CircleShape)),
         contentAlignment = Alignment.Center,
-    ) { if (selected) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp)) }
+    ) { if (selected) Icon(Icons.Filled.Check, contentDescription = null, tint = colors.onBrandFill, modifier = Modifier.size(14.dp)) }
 }
 
 private val DAY_LABELS = listOf("Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom")
@@ -193,21 +183,27 @@ fun daysSummary(days: List<DayOfWeek>): String = when (days.size) {
     else -> "Solo " + days.sorted().joinToString(", ") { DAY_LABELS[it.value - 1].lowercase() }
 }
 
+/** I giorni come nella striscia dei giorni di TREK: il giorno scelto è la pillola piena. */
 @Composable
 fun DaysPicker(selected: List<DayOfWeek>, onChange: (List<DayOfWeek>) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    Row(Modifier.fillMaxWidth().clip(CircleShape).background(colors.surfaceVariant).padding(3.dp)) {
         DayOfWeek.entries.forEachIndexed { i, day ->
             val on = day in selected
             Box(
-                Modifier.weight(1f).heightIn(min = 40.dp).clip(RoundedCornerShape(10.dp)).background(if (on) colors.brandFill else colors.surfaceVariant)
-                    .clickable(role = Role.Checkbox) { onChange(if (on) selected - day else (selected + day).sorted()) }.padding(vertical = 10.dp),
+                Modifier.weight(1f).heightIn(min = 36.dp).clip(CircleShape).background(if (on) colors.brandFill else Color.Transparent)
+                    .clickable(role = Role.Checkbox) { onChange(if (on) selected - day else (selected + day).sorted()) },
                 contentAlignment = Alignment.Center,
-            ) { Text(DAY_LABELS[i], style = FlightFinderType.label.copy(fontWeight = FontWeight.SemiBold), color = if (on) Color.White else colors.textSecondary) }
+            ) {
+                Text(
+                    DAY_LABELS[i], style = FlightFinderType.label.copy(fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium),
+                    color = if (on) colors.onBrandFill else colors.textPrimary,
+                )
+            }
         }
     }
 }
 
-/** Sezione che si apre e si chiude (es. "Altri filtri"). */
+/** Riga che si apre (es. "Altri filtri"): icona in un cerchio, titolo, riepilogo e freccia. */
 @Composable
 fun CollapsibleSection(
     title: String,
@@ -218,14 +214,22 @@ fun CollapsibleSection(
 ) {
     var open by rememberSaveable { mutableStateOf(initiallyOpen) }
     Column {
-        Row(Modifier.fillMaxWidth().clickable { open = !open }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (icon != null) Icon(icon, contentDescription = null, tint = colors.brand, modifier = Modifier.padding(end = 10.dp).size(20.dp))
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).clickable { open = !open }.padding(vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            if (icon != null) IconTile(icon)
             Column(Modifier.weight(1f)) {
                 Text(title, style = FlightFinderType.titleSm, color = colors.textPrimary)
-                if (summary != null) Text(summary, style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1)
+                if (summary != null) Text(summary, style = FlightFinderType.label, color = colors.textTertiary, maxLines = 1)
             }
-            Icon(if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = if (open) "Chiudi" else "Apri", tint = colors.textSecondary)
+            Icon(
+                if (open) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = if (open) "Chiudi" else "Apri", tint = colors.textTertiary,
+                modifier = Modifier.size(20.dp),
+            )
         }
-        if (open) Column(Modifier.padding(top = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+        if (open) Column(Modifier.padding(top = 18.dp), verticalArrangement = Arrangement.spacedBy(16.dp), content = content)
     }
 }

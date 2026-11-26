@@ -2,6 +2,7 @@ package it.gzanee.flightfinder.ui.screens.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,16 +46,16 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-/** Riquadro tenue con l'etichetta piccola sopra il valore; il tocco apre il selettore. */
+/** Riquadro tenue con l'etichetta maiuscola sopra il valore; il tocco apre il selettore. */
 @Composable
 private fun PickerBox(label: String?, text: String, isPlaceholder: Boolean, icon: ImageVector, modifier: Modifier, onClear: (() -> Unit)?, onClick: () -> Unit) {
     Row(
-        modifier.fillMaxWidth().heightIn(min = 60.dp).clip(FieldShape).background(colors.surfaceVariant)
-            .clickable(role = Role.Button, onClick = onClick).padding(start = 12.dp, end = 10.dp, top = 9.dp, bottom = 9.dp),
+        modifier.fillMaxWidth().heightIn(min = 64.dp).clip(FieldShape).background(colors.surfaceVariant)
+            .clickable(role = Role.Button, onClick = onClick).padding(start = 14.dp, end = 12.dp, top = 11.dp, bottom = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f)) {
-            if (label != null) Text(label, style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (label != null) FieldLabel(label)
             Text(
                 text,
                 style = if (isPlaceholder) FlightFinderType.body else FlightFinderType.titleSm.copy(fontFeatureSettings = "tnum"),
@@ -62,9 +63,9 @@ private fun PickerBox(label: String?, text: String, isPlaceholder: Boolean, icon
             )
         }
         if (onClear != null && !isPlaceholder) {
-            Icon(Icons.Filled.Close, contentDescription = "Cancella", tint = colors.textSecondary, modifier = Modifier.size(32.dp).clickable(onClick = onClear).padding(7.dp))
+            Icon(Icons.Filled.Close, contentDescription = "Cancella", tint = colors.textTertiary, modifier = Modifier.size(32.dp).clickable(onClick = onClear).padding(7.dp))
         } else {
-            Icon(icon, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -101,8 +102,9 @@ fun DateField(label: String?, value: LocalDate, minimum: LocalDate?, modifier: M
             colors = DatePickerDefaults.colors(
                 containerColor = colors.surface,
                 selectedDayContainerColor = colors.brandFill,
-                todayDateBorderColor = colors.brand,
-                todayContentColor = colors.brand,
+                selectedDayContentColor = colors.onBrandFill,
+                todayDateBorderColor = colors.brandFill,
+                todayContentColor = colors.textPrimary,
             ),
         )
     }

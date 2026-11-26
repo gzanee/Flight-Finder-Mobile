@@ -18,29 +18,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 
-val CardShape = RoundedCornerShape(16.dp)
+val CardShape = RoundedCornerShape(22.dp)
+val InnerShape = RoundedCornerShape(16.dp)
 
 /**
- * Pannello bianco con bordo sottile, appoggiato sulla tela senza ombra.
- * `highlighted` lo porta in primo piano: bordo blu e un'ombra appena percettibile.
+ * Card chiara, molto arrotondata, con un filo di luce sul bordo e un'ombra appena accennata.
+ * `highlighted` la segna con il contorno pieno; `inverted` la rende scura (il riquadro del prezzo).
  */
 @Composable
 fun FlightFinderCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     highlighted: Boolean = false,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
-    spacing: Int = 12,
+    inverted: Boolean = false,
+    contentPadding: PaddingValues = PaddingValues(18.dp),
+    spacing: Int = 14,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (highlighted) Modifier.shadow(10.dp, CardShape, ambientColor = Color(0x140F172A), spotColor = Color(0x1F0F172A)) else Modifier)
+            .shadow(if (inverted) 14.dp else 6.dp, CardShape, ambientColor = Color(0x14000000), spotColor = Color(if (inverted) 0x40000000 else 0x14000000))
             .then(if (onClick != null) Modifier.clip(CardShape).clickable(onClick = onClick) else Modifier),
         shape = CardShape,
-        color = colors.surface,
-        border = BorderStroke(if (highlighted) 1.5.dp else 1.dp, if (highlighted) colors.brand else colors.border),
+        color = if (inverted) colors.brandFill else colors.surface,
+        border = when {
+            highlighted -> BorderStroke(1.5.dp, colors.brandFill)
+            inverted -> null
+            else -> BorderStroke(1.dp, glassEdge())
+        },
     ) {
         Column(Modifier.padding(contentPadding), verticalArrangement = Arrangement.spacedBy(spacing.dp), content = content)
     }

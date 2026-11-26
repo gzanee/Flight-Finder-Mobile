@@ -1,8 +1,5 @@
 package it.gzanee.flightfinder.ui.screens.results
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,20 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Balance
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.HourglassBottom
 import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.StopCircle
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
@@ -46,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,10 +56,15 @@ import it.gzanee.flightfinder.ui.format.remaining
 import it.gzanee.flightfinder.ui.format.short
 import it.gzanee.flightfinder.ui.screens.components.BannerTone
 import it.gzanee.flightfinder.ui.screens.components.ButtonStyle
-import it.gzanee.flightfinder.ui.screens.components.CardShape
 import it.gzanee.flightfinder.ui.screens.components.CodeBadge
 import it.gzanee.flightfinder.ui.screens.components.CollapsibleSection
 import it.gzanee.flightfinder.ui.screens.components.FlagTile
+import it.gzanee.flightfinder.ui.screens.components.FieldLabel
+import it.gzanee.flightfinder.ui.screens.components.ListRow
+import it.gzanee.flightfinder.ui.screens.components.RoundIconButton
+import it.gzanee.flightfinder.ui.screens.components.StatusDot
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.outlined.Sync
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderButton
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderCard
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderChip
@@ -77,7 +72,6 @@ import it.gzanee.flightfinder.ui.screens.components.FlightFinderScaffold
 import it.gzanee.flightfinder.ui.screens.components.HeaderAction
 import it.gzanee.flightfinder.ui.screens.components.HintText
 import it.gzanee.flightfinder.ui.screens.components.InfoBanner
-import it.gzanee.flightfinder.ui.screens.components.Overline
 import it.gzanee.flightfinder.ui.screens.components.PlaceNames
 import it.gzanee.flightfinder.ui.screens.components.PriceCalendar
 import it.gzanee.flightfinder.ui.screens.components.SectionHeader
@@ -173,8 +167,8 @@ fun ResultsScreenContent(
         LazyColumn(
             Modifier.fillMaxWidth().weight(1f).navigationBarsPadding(),
             state = listState,
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (job.status != JobStatus.COMPLETE || job.issues.isNotEmpty()) {
                 item { ProgressCard(job, page.resultCount, names, state.isBusy, onCancel, onResume) }
@@ -195,20 +189,21 @@ fun ResultsScreenContent(
                     }
                     HintText(
                         (if (job.status == JobStatus.COMPLETE) "" else "I risultati si aggiornano mentre cerchiamo. ") +
-                            "Prezzi totali per ${count(job.request.travelers, "viaggiatore", "viaggiatori")}, orari locali.",
+                            "Prezzi totali per ${count(job.request.travelers, "viaggiatore", "viaggiatori")}, orari locali" +
+                            if (job.request.isRoundTrip) ", andata e ritorno con due biglietti separati." else ".",
                     )
                 }
             }
-            if (page.recommendations.cheapest != null) item { Recommendations(state, names, onFocus) }
+            if (page.recommendations.cheapest != null) {
+                item { SectionHeader("Suggeriti", Icons.Outlined.AutoAwesome, meta = "Tocca per vederlo", modifier = Modifier.padding(horizontal = 4.dp)) }
+                item { Recommendations(state, names, onFocus) }
+            }
             if (page.calendar.size > 1) {
                 item { FlightFinderCard { CollapsibleSection("Prezzi per data", summary = "Il giorno più economico per partire", icon = Icons.Outlined.CalendarMonth) { PriceCalendar(page.calendar) } } }
             }
             item {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SegmentedControl(
-                        listOf(ResultsMode.DESTINATIONS to "Mete", ResultsMode.TRIPS to "Tutti i voli"), mode, onMode, Modifier.weight(1f),
-                        icons = listOf(Icons.Outlined.Explore, Icons.AutoMirrored.Outlined.ViewList),
-                    )
+                    SegmentedControl(listOf(ResultsMode.DESTINATIONS to "Mete", ResultsMode.TRIPS to "Tutti i voli"), mode, onMode, Modifier.weight(1f))
                     val active = state.filters.activeCount
                     FlightFinderButton(if (active > 0) "Filtri · $active" else "Filtri", { showFilters = true }, style = ButtonStyle.SECONDARY, leadingIcon = Icons.Outlined.Tune)
                 }
@@ -222,12 +217,9 @@ fun ResultsScreenContent(
             }
             if (mode == ResultsMode.TRIPS) {
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Overline("Ordina per")
-                        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            SortOrder.entries.filter { job.request.isRoundTrip || it != SortOrder.USEFUL }.forEach { sort ->
-                                FlightFinderChip(sort.label, selected = state.sort == sort, onClick = { onSort(sort) })
-                            }
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SortOrder.entries.filter { job.request.isRoundTrip || it != SortOrder.USEFUL }.forEach { sort ->
+                            FlightFinderChip(sort.label, selected = state.sort == sort, onClick = { onSort(sort) })
                         }
                     }
                 }
@@ -281,10 +273,10 @@ private fun EmptyResults(resultCount: Int, running: Boolean, onReset: () -> Unit
 }
 
 @Composable
-private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Boolean, onCancel: () -> Unit, onResume: () -> Unit) = FlightFinderCard(highlighted = job.status.isRunning) {
+private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Boolean, onCancel: () -> Unit, onResume: () -> Unit) = FlightFinderCard {
     val r = job.request
     val running = job.status.isRunning
-    Overline(if (job.total > 0) "Avanzamento · ${(100 * job.completed / job.total).coerceIn(0, 100)}%" else "Avanzamento")
+    SectionHeader("Avanzamento", Icons.Outlined.Sync, meta = if (job.total > 0) "${(100 * job.completed / job.total).coerceIn(0, 100)}%" else null)
     Text(
         when (job.status) {
             JobStatus.RUNNING -> "Stiamo cercando i voli migliori…"
@@ -302,7 +294,7 @@ private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Bo
     )
     LinearProgressIndicator(
         progress = { if (job.total > 0) (job.completed.toFloat() / job.total).coerceIn(0f, 1f) else 0f },
-        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+        modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
         color = if (job.status == JobStatus.BLOCKED) colors.warn else colors.brandFill,
         trackColor = colors.surfaceVariant,
         gapSize = 0.dp,
@@ -329,46 +321,39 @@ private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Bo
 private fun Recommendations(state: ResultsUiState, names: PlaceNames, onFocus: (String) -> Unit) {
     val r = state.view!!.page.recommendations
     val round = state.view.job.request.isRoundTrip
-    data class Pick(val title: String, val icon: ImageVector, val trip: TripSummary?, val why: String, val accent: Boolean)
+    data class Pick(val title: String, val trip: TripSummary?, val why: String, val best: Boolean)
     val cards = buildList {
-        add(Pick("Il più economico", Icons.Outlined.Sell, r.cheapest, "Il prezzo più basso trovato.", true))
+        add(Pick("Il più economico", r.cheapest, "Il prezzo più basso trovato.", true))
         if (round) {
-            add(Pick("Più tempo sul posto", Icons.Outlined.HourglassBottom, r.longest, if (r.longest?.id == r.cheapest?.id) "Ed è anche il più economico." else if (r.longest != null) "Il soggiorno più lungo." else "Nessun confronto possibile.", false))
-            add(Pick("Il miglior compromesso", Icons.Outlined.Balance, r.balanced, r.balanced?.let { "${(it.extraPrice ?: 0.0).asEuro()} in più, ${(it.extraMinutes ?: 0).asDuration()} in più sul posto." } ?: "Il più economico è già la scelta migliore.", false))
+            add(Pick("Più tempo sul posto", r.longest, if (r.longest?.id == r.cheapest?.id) "Ed è anche il più economico." else if (r.longest != null) "Il soggiorno più lungo." else "Nessun confronto possibile.", false))
+            add(Pick("Il compromesso", r.balanced, r.balanced?.let { "${(it.extraPrice ?: 0.0).asEuro()} in più, ${(it.extraMinutes ?: 0).asDuration()} in più sul posto." } ?: "Il più economico è già la scelta migliore.", false))
         }
     }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        SectionHeader("Suggeriti", Icons.Outlined.AutoAwesome, meta = "Tocca per vederlo")
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            for (pick in cards) {
-                val trip = pick.trip
-                Column(
-                    Modifier.width(232.dp).clip(CardShape).background(colors.surface).border(1.dp, colors.border, CardShape)
-                        .clickable(enabled = trip != null) { trip?.let { onFocus(it.id) } },
-                ) {
-                    Row(
-                        Modifier.fillMaxWidth().background(if (pick.accent) colors.accentSoft else colors.surfaceVariant).padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Icon(pick.icon, contentDescription = null, tint = if (pick.accent) colors.accent else colors.brand, modifier = Modifier.size(15.dp))
-                        Text(pick.title.uppercase(), style = FlightFinderType.overline, color = if (pick.accent) colors.accent else colors.brand, maxLines = 1)
-                    }
-                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        if (trip != null) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    "${names.flag(trip.destination)} ${names.city(trip.destination)}".trim(), style = FlightFinderType.titleSm,
-                                    color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
-                                )
-                                Text(trip.price.asEuro(), style = FlightFinderType.price.copy(fontSize = FlightFinderType.title.fontSize), color = if (pick.accent) colors.accent else colors.textPrimary)
-                            }
-                            Text("${dates(trip)} · da ${names.city(trip.origin)}", style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            trip.usefulMinutes?.let {
-                                Text("${it.asDuration()} ${if (trip.destinationAirportChange) "tra i voli" else "sul posto"}", style = FlightFinderType.label.copy(fontWeight = FontWeight.SemiBold), color = colors.textPrimary)
-                            }
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        for (pick in cards) {
+            val trip = pick.trip
+            FlightFinderCard(Modifier.width(260.dp), onClick = trip?.let { { onFocus(it.id) } }, spacing = 8) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (pick.best) StatusDot(colors.accent)
+                    FieldLabel(pick.title)
+                }
+                if (trip != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                "${names.city(trip.destination)} ${names.flag(trip.destination)}".trim(), style = FlightFinderType.title,
+                                color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(trip.price.asEuro(), style = FlightFinderType.price, color = colors.textPrimary)
                         }
-                        Text(pick.why, style = FlightFinderType.label, color = colors.textSecondary, maxLines = 2)
+                        RoundIconButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Vedi il viaggio", { onFocus(trip.id) }, filled = true, size = 36.dp)
                     }
+                    Text(
+                        "${dates(trip)} · da ${names.city(trip.origin)}" + (trip.usefulMinutes?.let { " · ${it.asDuration()} ${if (trip.destinationAirportChange) "tra i voli" else "sul posto"}" } ?: ""),
+                        style = FlightFinderType.label, color = colors.textTertiary, maxLines = 2,
+                    )
+                } else {
+                    Text(pick.why, style = FlightFinderType.label, color = colors.textTertiary, maxLines = 2)
                 }
             }
         }
@@ -380,28 +365,21 @@ private fun DestinationCard(group: DestinationGroup, allDestinations: List<Strin
     // Il filtro prende tutti gli aeroporti della città fra i risultati, non solo quelli rimasti dopo i filtri.
     val cityAirports = allDestinations.filter { names.city(it) == group.city }.toSet().ifEmpty { group.destinations.toSet() }
     val code = group.destinations.first()
-    FlightFinderCard(onClick = { onOpen(cityAirports) }, contentPadding = PaddingValues(14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FlagTile(names.flag(code))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(group.city, style = FlightFinderType.titleSm, color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                    group.destinations.take(3).forEach { CodeBadge(it) }
-                }
-                Text(
-                    listOf(names.country(code), "da ${names.city(group.featured.origin)}").filter { it.isNotEmpty() }.joinToString(" · "),
-                    style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                )
-                Text(dates(group.featured), style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1)
-            }
+    FlightFinderCard(onClick = { onOpen(cityAirports) }, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)) {
+        ListRow(
+            title = group.city,
+            detail = listOf(names.country(code), group.destinations.joinToString(", ")).filter { it.isNotEmpty() }.joinToString(" · "),
+            subdetail = "${dates(group.featured)} · da ${names.city(group.featured.origin)}",
+            leading = { FlagTile(names.flag(code)) },
+        ) {
             Column(horizontalAlignment = Alignment.End) {
-                Text("da", style = FlightFinderType.label, color = colors.textSecondary)
-                Text(group.cheapest.price.asEuro(), style = FlightFinderType.price, color = if (best) colors.accent else colors.textPrimary)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(count(group.count, "opzione", "opzioni"), style = FlightFinderType.label.copy(fontWeight = FontWeight.SemiBold), color = colors.brand)
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.brand, modifier = Modifier.size(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (best) StatusDot(colors.accent)
+                    Text(group.cheapest.price.asEuro(), style = FlightFinderType.price.copy(fontSize = FlightFinderType.title.fontSize), color = colors.textPrimary)
                 }
+                Text(count(group.count, "opzione", "opzioni"), style = FlightFinderType.label, color = colors.textTertiary)
             }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
         }
     }
 }

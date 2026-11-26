@@ -32,6 +32,7 @@ fun AppNavigation(onToggleTheme: () -> Unit = {}) {
                 viewModel = hiltViewModel(),
                 onAddPlace = { kind -> navController.navigateSafe(Screen.Place.createRoute(kind)) },
                 onSearchStarted = { id -> navController.navigateSafe(Screen.Results.createRoute(id)) },
+                onOpenSearch = { id -> navController.navigateSafe(Screen.Results.createRoute(id)) },
                 onHistory = { navController.navigateSafe(Screen.History.route) },
                 onDiagnostics = { navController.navigateSafe(Screen.Diagnostics.route) },
                 onToggleTheme = onToggleTheme,

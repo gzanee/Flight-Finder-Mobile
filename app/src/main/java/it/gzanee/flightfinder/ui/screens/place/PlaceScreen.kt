@@ -1,5 +1,9 @@
 package it.gzanee.flightfinder.ui.screens.place
 
+import it.gzanee.flightfinder.domain.model.REAL_ROUTES
+import it.gzanee.flightfinder.ui.i18n.destinationSetLabel
+import it.gzanee.flightfinder.ui.screens.components.SelectionMark
+import androidx.compose.material.icons.outlined.Public
 import it.gzanee.flightfinder.ui.i18n.plural
 import androidx.compose.ui.res.stringResource
 import it.gzanee.flightfinder.R
@@ -67,6 +71,7 @@ fun PlaceScreen(
     onToggleTheme: () -> Unit,
 ) {
     val form by searchViewModel.form.collectAsStateWithLifecycle()
+    val destinationSets by searchViewModel.destinationSets.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
     val hits by viewModel.hits.collectAsStateWithLifecycle()
     val isOrigin = kind == PlaceKind.ORIGIN
@@ -90,11 +95,23 @@ fun PlaceScreen(
             if (isOrigin) searchViewModel.addOrigin(place) else searchViewModel.addDestination(place)
             viewModel.onQueryChange("")
         },
+        onRemove = { place ->
+            searchViewModel.update { if (isOrigin) copy(origins = origins - place) else copy(destinations = destinations - place) }
+        },
+        anywhere = if (isOrigin) null else form.anywhere,
+        destinationSets = destinationSets,
+        destinationSet = form.destinationSet,
+        onAnywhere = { v -> searchViewModel.update { copy(anywhere = v) } },
+        onDestinationSet = { key -> searchViewModel.update { copy(anywhere = true, destinationSet = key) } },
         onBack = onBack,
         onToggleTheme = onToggleTheme,
     )
 }
 
+/**
+ * Partenze o destinazioni: ricerca per città, aeroporto, codice o paese, i luoghi scelti
+ * (rimovibili) e, per le destinazioni, "Ovunque" con i gruppi di mete del catalogo.
+ */
 @Composable
 fun PlaceScreenContent(
     isOrigin: Boolean,
@@ -104,11 +121,19 @@ fun PlaceScreenContent(
     limitReached: Boolean = false,
     onQueryChange: (String) -> Unit = {},
     onPick: (PlaceHit) -> Unit = {},
+    onRemove: (PlaceChoice) -> Unit = {},
+    /** Solo per le destinazioni: null per le partenze. */
+    anywhere: Boolean? = null,
+    destinationSets: List<Pair<String, String>> = emptyList(),
+    destinationSet: String = REAL_ROUTES,
+    onAnywhere: (Boolean) -> Unit = {},
+    onDestinationSet: (String) -> Unit = {},
     onBack: () -> Unit = {},
     onToggleTheme: () -> Unit = {},
 ) {
     val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
+    // Per le partenze si scrive subito; per le destinazioni prima si vede "Ovunque".
+    LaunchedEffect(Unit) { if (anywhere == null) runCatching { focus.requestFocus() } }
     FlightFinderScaffold(
         title = stringResource(if (isOrigin) R.string.where_from else R.string.where_to),
         subtitle = stringResource(if (isOrigin) R.string.departure_airports else R.string.places_hint),
@@ -133,14 +158,36 @@ fun PlaceScreenContent(
                     modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
             }
+            if (anywhere != null && query.isBlank()) {
+                item {
+                    FlightFinderCard(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp), spacing = 0) {
+                        ListRow(
+                            title = stringResource(R.string.anywhere),
+                            detail = stringResource(R.string.anywhere_hint),
+                            leading = { IconTile(Icons.Outlined.Public, filled = anywhere, size = 42.dp) },
+                            onClick = { onAnywhere(!anywhere) },
+                        ) { SelectionMark(anywhere) }
+                        if (anywhere) {
+                            (listOf(REAL_ROUTES to stringResource(R.string.all_reachable)) + destinationSets.map { (key, label) -> key to destinationSetLabel(key, label) })
+                                .forEach { (key, label) ->
+                                    Hairline()
+                                    ListRow(title = label, detail = null, onClick = { onDestinationSet(key) }) {
+                                        SelectionMark(key == destinationSet)
+                                    }
+                                }
+                        }
+                    }
+                }
+                if (anywhere) item { HintText(stringResource(R.string.anywhere_or_pick), Modifier.padding(horizontal = 4.dp)) }
+            }
             if (limitReached) item { InfoBanner(stringResource(R.string.limit_reached), BannerTone.BAD) }
-            if (chosen.isNotEmpty()) {
+            if (chosen.isNotEmpty() && anywhere != true) {
                 item {
                     Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         FieldLabel(stringResource(R.string.selected_count, chosen.size))
                         ChipGroup {
                             chosen.forEach {
-                                FlightFinderChip(it.label, detail = if (it is PlaceChoice.Country) plural(R.plurals.airports, it.codes.size) else it.codes.single())
+                                FlightFinderChip(it.label, detail = if (it is PlaceChoice.Country) plural(R.plurals.airports, it.codes.size) else it.codes.single(), onRemove = { onRemove(it) })
                             }
                         }
                     }

@@ -104,6 +104,28 @@ data class SearchFormState(
 
     fun destinationCodes() = destinations.flatMap { it.codes }.distinct()
 
+    /** Quanti filtri avanzati sono cambiati rispetto ai valori di partenza (per la riga "Altri filtri"). */
+    fun advancedCount(): Int {
+        val d = SearchFormState()
+        return listOf(
+            departureArrivalMin != d.departureArrivalMin || departureArrivalMax != d.departureArrivalMax,
+            isRoundTrip && (returnArrivalMin != d.returnArrivalMin || returnArrivalMax != d.returnArrivalMax),
+            finalArrival != d.finalArrival,
+            isRoundTrip && minHours != d.minHours,
+            departureDurationMin != d.departureDurationMin || departureDurationMax != d.departureDurationMax,
+            isRoundTrip && (returnDurationMin != d.returnDurationMin || returnDurationMax != d.returnDurationMax),
+            minLayover != d.minLayover || maxLayover != d.maxLayover,
+            airlineMode != d.airlineMode,
+            airlines.isNotBlank(),
+            excludeBasicEconomy != d.excludeBasicEconomy,
+            selfTransfer != d.selfTransfer,
+            airportChange != d.airportChange,
+            schengenTransfers != d.schengenTransfers,
+            isRoundTrip && returnAirport != d.returnAirport,
+            isRoundTrip && !anywhere && returnDeparture != d.returnDeparture,
+        ).count { it }
+    }
+
     /** Le etichette dei luoghi scelti nella lingua dell'app (i predefiniti nascono in italiano). */
     fun relabeled(names: PlaceNames): SearchFormState {
         fun PlaceChoice.relabel(): PlaceChoice = when (this) {

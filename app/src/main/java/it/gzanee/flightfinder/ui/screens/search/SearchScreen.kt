@@ -1,5 +1,40 @@
 package it.gzanee.flightfinder.ui.screens.search
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import it.gzanee.flightfinder.ui.format.asEuro
+import it.gzanee.flightfinder.ui.i18n.names
+import it.gzanee.flightfinder.ui.screens.components.FormSheet
+import it.gzanee.flightfinder.ui.screens.components.IconTile
+import it.gzanee.flightfinder.ui.screens.components.InnerShape
+import it.gzanee.flightfinder.ui.screens.components.ListRow
+import it.gzanee.flightfinder.ui.screens.components.Overline
+import it.gzanee.flightfinder.ui.screens.components.PlaceNames
+import it.gzanee.flightfinder.ui.screens.components.dateSpan
+import it.gzanee.flightfinder.ui.screens.components.shortName
+import it.gzanee.flightfinder.ui.screens.history.SavedSearch
+import androidx.compose.material.icons.outlined.SyncAlt
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.NetworkCheck
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Weekend
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.filled.FlightLand
+import androidx.compose.material.icons.filled.FlightTakeoff
+import java.time.DayOfWeek
 import it.gzanee.flightfinder.ui.screens.components.dateSpan
 import it.gzanee.flightfinder.ui.i18n.destinationSetLabel
 import it.gzanee.flightfinder.ui.i18n.text
@@ -13,23 +48,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FlightLand
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.NetworkCheck
-import androidx.compose.material.icons.outlined.Route
 import androidx.compose.material.icons.outlined.Weekend
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -46,7 +77,6 @@ import it.gzanee.flightfinder.domain.model.AirlineMode
 import it.gzanee.flightfinder.domain.model.AirportChoice
 import it.gzanee.flightfinder.domain.model.Baggage
 import it.gzanee.flightfinder.domain.model.DateMode
-import it.gzanee.flightfinder.domain.model.REAL_ROUTES
 import it.gzanee.flightfinder.domain.model.Seat
 import it.gzanee.flightfinder.domain.model.TripType
 import it.gzanee.flightfinder.ui.i18n.estimate
@@ -55,7 +85,6 @@ import it.gzanee.flightfinder.ui.preview.DevicePreview
 import it.gzanee.flightfinder.ui.screens.components.BannerTone
 import it.gzanee.flightfinder.ui.screens.components.ButtonStyle
 import it.gzanee.flightfinder.ui.screens.components.ChipGroup
-import it.gzanee.flightfinder.ui.screens.components.CollapsibleSection
 import it.gzanee.flightfinder.ui.screens.components.DateField
 import it.gzanee.flightfinder.ui.screens.components.DaysPicker
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderButton
@@ -64,7 +93,6 @@ import it.gzanee.flightfinder.ui.screens.components.FlightFinderChip
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderScaffold
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderTextField
 import it.gzanee.flightfinder.ui.screens.components.FieldLabel
-import it.gzanee.flightfinder.ui.screens.components.GlassBar
 import it.gzanee.flightfinder.ui.screens.components.Hairline
 import it.gzanee.flightfinder.ui.screens.components.HeaderAction
 import it.gzanee.flightfinder.ui.screens.components.HintText
@@ -88,6 +116,7 @@ fun SearchScreen(
     viewModel: SearchViewModel,
     onAddPlace: (PlaceKind) -> Unit,
     onSearchStarted: (String) -> Unit,
+    onOpenSearch: (String) -> Unit,
     onHistory: () -> Unit,
     onDiagnostics: () -> Unit,
     onToggleTheme: () -> Unit,
@@ -97,15 +126,21 @@ fun SearchScreen(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
     val longSearch by viewModel.longSearch.collectAsStateWithLifecycle()
+    val recent by viewModel.recent.collectAsStateWithLifecycle()
+    val catalog by viewModel.catalog.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { viewModel.refreshRecent() }
 
     SearchScreenContent(
         form = form,
         destinationSets = destinationSets,
+        recent = recent,
+        names = catalog.names(),
         isLoading = isLoading,
         errorMessage = errorMessage,
         onChange = viewModel::update,
         onAddPlace = onAddPlace,
         onSearch = { viewModel.search(onSearchStarted) },
+        onOpenSearch = onOpenSearch,
         onHistory = onHistory,
         onDiagnostics = onDiagnostics,
         onToggleTheme = onToggleTheme,
@@ -122,26 +157,38 @@ fun SearchScreen(
             },
             confirmButton = { TextButton(onClick = { viewModel.confirmLongSearch(onSearchStarted) }) { Text(stringResource(R.string.start)) } },
             dismissButton = { TextButton(onClick = viewModel::dismissLongSearch) { Text(stringResource(R.string.cancel)) } },
+            containerColor = colors.surface,
         )
     }
 }
 
 enum class PlaceKind { ORIGIN, DESTINATION }
 
-/** Il modulo unico del portale, impaginato per il telefono. */
+/** I pannelli che si aprono dal riepilogo. */
+private enum class FormPanel { DATES, TRAVELERS, FILTERS }
+
+/**
+ * La ricerca in un riepilogo compatto: tipo di viaggio, poi Da · A · Date · Viaggiatori e i
+ * filtri avanzati come righe da toccare, tutto nella prima schermata. Ogni riga apre i suoi
+ * controlli (gli aeroporti in una schermata, il resto in un pannello dal basso).
+ */
 @Composable
 fun SearchScreenContent(
     form: SearchFormState,
     destinationSets: List<Pair<String, String>> = emptyList(),
+    recent: List<SavedSearch> = emptyList(),
+    names: PlaceNames = null.names(),
     isLoading: Boolean = false,
     errorMessage: UiText? = null,
     onChange: (SearchFormState.() -> SearchFormState) -> Unit = {},
     onAddPlace: (PlaceKind) -> Unit = {},
     onSearch: () -> Unit = {},
+    onOpenSearch: (String) -> Unit = {},
     onHistory: () -> Unit = {},
     onDiagnostics: () -> Unit = {},
     onToggleTheme: () -> Unit = {},
 ) {
+    var panel by rememberSaveable { mutableStateOf<FormPanel?>(null) }
     FlightFinderScaffold(
         title = "Flight Finder",
         subtitle = form.origins.joinToString(" & ") { it.label }.ifEmpty { "v${BuildConfig.VERSION_NAME}" },
@@ -154,70 +201,131 @@ fun SearchScreenContent(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
-                .padding(top = 18.dp, bottom = 24.dp),
+                .padding(top = 12.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(stringResource(R.string.search_headline), style = FlightFinderType.headlineXl, color = colors.textPrimary, modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp))
-            RouteSection(form, destinationSets, onChange, onAddPlace)
-            PeriodSection(form, onChange)
-            DaysSection(form, onChange)
-            TravelersSection(form, onChange)
-            FlightFinderCard { MoreFilters(form, onChange) }
-            errorMessage?.let { InfoBanner(it.asString(), BannerTone.BAD) }
-            HintText(
-                stringResource(R.string.disclaimer),
-                Modifier.padding(horizontal = 4.dp),
+            Text(stringResource(R.string.search_headline), style = FlightFinderType.headline, color = colors.textPrimary, modifier = Modifier.padding(horizontal = 4.dp))
+            SegmentedControl(
+                listOf(TripType.ROUND_TRIP to stringResource(R.string.round_trip), TripType.ONE_WAY to stringResource(R.string.one_way)),
+                form.tripType, { v -> onChange { copy(tripType = v) } },
             )
+            Summary(form, destinationSets, onAddPlace) { panel = it }
+            errorMessage?.let { InfoBanner(it.asString(), BannerTone.BAD) }
+            if (recent.isNotEmpty()) RecentSearches(recent, names, onOpenSearch, onHistory)
+            HintText(stringResource(R.string.disclaimer), Modifier.padding(horizontal = 4.dp))
             FlightFinderButton(stringResource(R.string.test_connection), onDiagnostics, style = ButtonStyle.OUTLINE, leadingIcon = Icons.Outlined.NetworkCheck)
         }
-        SearchDock(form, isLoading, onSearch)
+        // Sempre a portata di pollice, anche su un telefono basso.
+        FlightFinderButton(
+            stringResource(R.string.search_flights), onSearch,
+            Modifier.navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth().heightIn(min = 56.dp),
+            isLoading = isLoading, trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
+        )
+    }
+    when (panel) {
+        FormPanel.DATES -> FormSheet(stringResource(R.string.dates_title), onDismiss = { panel = null }) { DatesPanel(form, onChange) }
+        FormPanel.TRAVELERS -> FormSheet(stringResource(R.string.travelers_bags), onDismiss = { panel = null }) { TravelersPanel(form, onChange) }
+        FormPanel.FILTERS -> FormSheet(stringResource(R.string.more_filters), onDismiss = { panel = null }) { FiltersPanel(form, onChange) }
+        null -> Unit
     }
 }
 
-/** Dock in fondo, come quello di TREK: il periodo scelto e il pulsante pieno per cercare. */
 @Composable
-private fun SearchDock(form: SearchFormState, isLoading: Boolean, onSearch: () -> Unit) {
-    GlassBar(Modifier.imePadding().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth(), dock = true) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 62.dp).padding(start = 22.dp, end = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f).padding(end = 12.dp)) {
-                FieldLabel(stringResource(if (form.isFlexible) R.string.period else R.string.dates))
-                Text(
-                    if (form.isRoundTrip || form.isFlexible) dateSpan(form.startDate, form.endDate) else form.startDate.short(),
-                    style = FlightFinderType.titleSm.copy(fontFeatureSettings = TABULAR), color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                )
+private fun Summary(form: SearchFormState, destinationSets: List<Pair<String, String>>, onAddPlace: (PlaceKind) -> Unit, onPanel: (FormPanel) -> Unit) {
+    val people = listOfNotNull(
+        plural(R.plurals.adults, form.adults),
+        form.children.takeIf { it > 0 }?.let { plural(R.plurals.children, it) },
+        form.infants.takeIf { it > 0 }?.let { plural(R.plurals.infants, it) },
+    ).joinToString(", ")
+    val destination = when {
+        form.anywhere -> stringResource(R.string.anywhere)
+        form.destinations.isEmpty() -> null
+        else -> form.destinations.joinToString(" · ") { it.label }
+    }
+    val setLabel = destinationSets.firstOrNull { it.first == form.destinationSet }?.let { (key, label) -> destinationSetLabel(key, label) }
+    val dates = if (form.isRoundTrip || form.isFlexible) dateSpan(form.startDate, form.endDate) else form.startDate.short()
+    val datesDetail = when {
+        !form.isFlexible -> stringResource(R.string.exact_dates)
+        form.isRoundTrip -> "${dayList(form.departureDays)} → ${dayList(form.returnDays)} · " +
+            if (form.minNights == form.maxNights) plural(R.plurals.nights, form.minNights) else stringResource(R.string.nights_range, form.minNights, form.maxNights)
+        else -> dayList(form.departureDays)
+    }
+    val advanced = form.advancedCount()
+    FlightFinderCard(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp), spacing = 0) {
+        SummaryRow(Icons.Filled.FlightTakeoff, stringResource(R.string.from), form.origins.joinToString(" · ") { it.label }.ifEmpty { null }, form.origins.flatMap { it.codes }.joinToString(" · ").ifEmpty { null }) { onAddPlace(PlaceKind.ORIGIN) }
+        Hairline()
+        SummaryRow(
+            Icons.Filled.FlightLand, stringResource(R.string.to), destination,
+            if (form.anywhere) setLabel ?: stringResource(R.string.all_reachable) else form.destinationCodes().take(6).joinToString(" · ").ifEmpty { null },
+        ) { onAddPlace(PlaceKind.DESTINATION) }
+        Hairline()
+        SummaryRow(Icons.Outlined.CalendarMonth, stringResource(R.string.dates), dates, datesDetail) { onPanel(FormPanel.DATES) }
+        Hairline()
+        SummaryRow(Icons.Outlined.Group, stringResource(R.string.travelers_title), people, "${form.seat.text()} · ${form.baggage.text()}") { onPanel(FormPanel.TRAVELERS) }
+        Hairline()
+        SummaryRow(
+            Icons.Outlined.Tune, stringResource(R.string.more_filters),
+            if (advanced == 0) stringResource(R.string.filters_none) else plural(R.plurals.active_filters, advanced),
+            stringResource(R.string.more_filters_hint),
+        ) { onPanel(FormPanel.FILTERS) }
+    }
+}
+
+/** "ven" o "ven/sab" per i giorni ammessi. */
+@Composable
+private fun dayList(days: List<DayOfWeek>): String = when (days.size) {
+    0 -> stringResource(R.string.days_none)
+    7 -> stringResource(R.string.days_all).lowercase()
+    else -> days.sorted().joinToString("/") { it.shortName().lowercase() }
+}
+
+/** Una riga del riepilogo: icona, etichetta maiuscola, valore grande e dettaglio, freccia. */
+@Composable
+private fun SummaryRow(icon: ImageVector, label: String, value: String?, detail: String?, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().clip(InnerShape).clickable(role = Role.Button, onClick = onClick).padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        IconTile(icon)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            FieldLabel(label)
+            Text(
+                value ?: stringResource(R.string.choose), style = FlightFinderType.titleSm,
+                color = if (value == null) colors.textTertiary else colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+            if (detail != null) Text(detail, style = FlightFinderType.label, color = colors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(20.dp))
+    }
+}
+
+@Composable
+private fun RecentSearches(recent: List<SavedSearch>, names: PlaceNames, onOpen: (String) -> Unit, onAll: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Overline(stringResource(R.string.recent_searches), Modifier.padding(horizontal = 4.dp), icon = Icons.Outlined.History, action = stringResource(R.string.see_all), onAction = onAll)
+        FlightFinderCard(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp), spacing = 0) {
+            recent.forEachIndexed { i, saved ->
+                if (i > 0) Hairline()
+                val r = saved.job.request
+                ListRow(
+                    title = "${r.origins.map { names.city(it) }.distinct().joinToString(" + ")} → " +
+                        if (r.destinations.isEmpty()) stringResource(R.string.anywhere) else r.destinations.map(names::city).distinct().let { c -> c.take(2).joinToString(", ") + if (c.size > 2) "…" else "" },
+                    detail = (if (r.startDate == r.endDate) r.startDate.short() else dateSpan(r.startDate, r.endDate)) + " · " + saved.status.text(),
+                    leading = { IconTile(if (r.isRoundTrip) Icons.Outlined.SyncAlt else Icons.Filled.FlightTakeoff, filled = saved.status.isRunning) },
+                    onClick = { onOpen(saved.job.id) },
+                ) {
+                    saved.cheapest?.let { Text(it.asEuro(), style = FlightFinderType.titleSm.copy(fontFeatureSettings = TABULAR), color = colors.textPrimary) }
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
+                }
             }
-            FlightFinderButton(stringResource(R.string.search_button), onSearch, isLoading = isLoading, trailingIcon = Icons.AutoMirrored.Filled.ArrowForward)
         }
     }
 }
 
+/** Date, giorni, notti e orari. */
 @Composable
-private fun RouteSection(
-    form: SearchFormState,
-    destinationSets: List<Pair<String, String>>,
-    onChange: (SearchFormState.() -> SearchFormState) -> Unit,
-    onAddPlace: (PlaceKind) -> Unit,
-) = FlightFinderCard(spacing = 18) {
-    SectionHeader(stringResource(R.string.route), Icons.Outlined.Route)
-    SegmentedControl(listOf(TripType.ROUND_TRIP to stringResource(R.string.round_trip), TripType.ONE_WAY to stringResource(R.string.one_way)), form.tripType, { v -> onChange { copy(tripType = v) } })
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        FieldLabel(stringResource(R.string.from))
-        PlaceChips(form.origins, onRemove = { p -> onChange { copy(origins = origins - p) } }, onAdd = { onAddPlace(PlaceKind.ORIGIN) })
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        FieldLabel(stringResource(R.string.to))
-        ToggleRow(stringResource(R.string.anywhere), form.anywhere, hint = stringResource(R.string.anywhere_hint)) { v -> onChange { copy(anywhere = v) } }
-        if (form.anywhere) {
-            OptionList(listOf(REAL_ROUTES to stringResource(R.string.all_reachable)) + destinationSets.map { (key, label) -> key to destinationSetLabel(key, label) }, form.destinationSet) { v -> onChange { copy(destinationSet = v) } }
-        } else {
-            PlaceChips(form.destinations, onRemove = { p -> onChange { copy(destinations = destinations - p) } }, onAdd = { onAddPlace(PlaceKind.DESTINATION) })
-        }
-    }
-}
-
-@Composable
-private fun PeriodSection(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) = FlightFinderCard(spacing = 18) {
-    SectionHeader(stringResource(R.string.period), Icons.Outlined.CalendarMonth)
+internal fun ColumnScope.DatesPanel(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) {
     SegmentedControl(listOf(DateMode.FLEXIBLE to stringResource(R.string.flexible_dates), DateMode.FIXED to stringResource(R.string.exact_dates)), form.dateMode, { v -> onChange { withDateMode(v) } })
     ChipGroup {
         FlightFinderChip(stringResource(R.string.a_weekend), icon = Icons.Outlined.Weekend, onClick = { onChange { weekend() } })
@@ -240,10 +348,7 @@ private fun PeriodSection(form: SearchFormState, onChange: (SearchFormState.() -
             stringResource(if (form.isRoundTrip) R.string.flexible_hint_round else R.string.flexible_hint_one_way),
         )
     }
-}
-
-@Composable
-private fun DaysSection(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) = FlightFinderCard(spacing = 18) {
+    Hairline(Modifier.padding(vertical = 4.dp))
     SectionHeader(stringResource(R.string.outbound), Icons.Filled.FlightTakeoff, meta = if (form.isFlexible) daysSummary(form.departureDays) else null)
     if (form.isFlexible) DaysPicker(form.departureDays) { v -> onChange { copy(departureDays = v) } }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -251,7 +356,7 @@ private fun DaysSection(form: SearchFormState, onChange: (SearchFormState.() -> 
         TimeField(stringResource(R.string.until), form.departureMax, Modifier.weight(1f)) { v -> onChange { copy(departureMax = v) } }
     }
     if (form.isRoundTrip) {
-        Hairline()
+        Hairline(Modifier.padding(vertical = 4.dp))
         SectionHeader(stringResource(R.string.inbound), Icons.Filled.FlightLand, meta = if (form.isFlexible) daysSummary(form.returnDays) else null)
         if (form.isFlexible) DaysPicker(form.returnDays) { v -> onChange { copy(returnDays = v) } }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -261,26 +366,9 @@ private fun DaysSection(form: SearchFormState, onChange: (SearchFormState.() -> 
     }
 }
 
+/** Viaggiatori, classe, bagaglio, budget e scali. */
 @Composable
-private fun PlaceChips(places: List<PlaceChoice>, onRemove: (PlaceChoice) -> Unit, onAdd: () -> Unit) = ChipGroup {
-    for (place in places) {
-        val detail = when (place) {
-            is PlaceChoice.Country -> plural(R.plurals.airports, place.codes.size)
-            is PlaceChoice.Airport -> place.code
-        }
-        FlightFinderChip(place.label, detail = detail, onRemove = { onRemove(place) })
-    }
-    FlightFinderChip(stringResource(R.string.add), icon = Icons.Filled.Add, onClick = onAdd, selected = places.isEmpty())
-}
-
-@Composable
-private fun TravelersSection(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) = FlightFinderCard(spacing = 18) {
-    val people = listOfNotNull(
-        plural(R.plurals.adults, form.adults),
-        form.children.takeIf { it > 0 }?.let { plural(R.plurals.children, it) },
-        form.infants.takeIf { it > 0 }?.let { plural(R.plurals.infants, it) },
-    ).joinToString(", ")
-    CollapsibleSection(stringResource(R.string.travelers_bags), summary = "$people · ${form.seat.text()} · ${form.baggage.text()}", icon = Icons.Outlined.Group) {
+internal fun ColumnScope.TravelersPanel(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) {
         StepperRow(stringResource(R.string.adults_label), form.adults, 1..9, stringResource(R.string.adults_hint)) { n -> onChange { copy(adults = n) } }
         StepperRow(stringResource(R.string.children_label), form.children, 0..8, stringResource(R.string.children_hint)) { n -> onChange { copy(children = n) } }
         StepperRow(stringResource(R.string.infants_label), form.infants, 0..8, stringResource(R.string.infants_hint)) { n -> onChange { copy(infants = n) } }
@@ -288,7 +376,6 @@ private fun TravelersSection(form: SearchFormState, onChange: (SearchFormState.(
         OptionList(Seat.entries.map { it to it.text() }, form.seat) { v -> onChange { copy(seat = v) } }
         FieldLabel(stringResource(R.string.bags), Modifier.padding(top = 6.dp))
         OptionList(Baggage.entries.map { it to it.text() }, form.baggage) { v -> onChange { copy(baggage = v) } }
-    }
     FlightFinderTextField(
         form.budget, { v -> onChange { copy(budget = v.filter { it.isDigit() || it == ',' || it == '.' }) } },
         label = stringResource(if (form.isRoundTrip) R.string.budget_round else R.string.field_budget), placeholder = stringResource(R.string.no_limit), suffix = "€", numeric = true,
@@ -297,10 +384,9 @@ private fun TravelersSection(form: SearchFormState, onChange: (SearchFormState.(
     SegmentedControl(listOf(0 to stringResource(R.string.stops_direct), 1 to stringResource(R.string.stops_one), 2 to stringResource(R.string.stops_two), 3 to stringResource(R.string.stops_any)), form.maxStops, { v -> onChange { copy(maxStops = v) } })
 }
 
+/** Arrivi, durate, scali, compagnie e aeroporti del ritorno. */
 @Composable
-private fun MoreFilters(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) = CollapsibleSection(
-    stringResource(R.string.more_filters), summary = stringResource(R.string.more_filters_hint), icon = Icons.Outlined.FilterList,
-) {
+internal fun ColumnScope.FiltersPanel(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) {
     FieldLabel(stringResource(R.string.arrivals), Modifier.padding(top = 8.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         TimeField(stringResource(R.string.outbound_arrival_from), form.departureArrivalMin, Modifier.weight(1f)) { v -> onChange { copy(departureArrivalMin = v) } }

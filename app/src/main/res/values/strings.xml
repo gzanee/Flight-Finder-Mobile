@@ -318,6 +318,15 @@
     <string name="test_ok">Google answers: searches work from this network.</string>
     <string name="test_failed">The test did not work. If Google is limiting requests, wait a quarter of an hour or try another network (Wi-Fi or mobile data).</string>
     <string name="google_answer">Google’s answer</string>
+    <string name="search_flights">Search flights</string>
+    <string name="dates_title">Dates and times</string>
+    <string name="travelers_title">Travellers</string>
+    <string name="nights_range">%1$d–%2$d nights</string>
+    <string name="filters_none">None</string>
+    <string name="choose">Choose</string>
+    <string name="recent_searches">Recent searches</string>
+    <string name="see_all">See all</string>
+    <string name="anywhere_or_pick">Or search above for a city, an airport or a whole country.</string>
     <plurals name="nights">
         <item quantity="one">%d night</item>
         <item quantity="other">%d nights</item>
@@ -385,5 +394,9 @@
     <plurals name="destinations_count">
         <item quantity="one">%d destination</item>
         <item quantity="other">%d destinations</item>
+    </plurals>
+    <plurals name="active_filters">
+        <item quantity="one">%d active</item>
+        <item quantity="other">%d active</item>
     </plurals>
 </resources>

@@ -1,5 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.search
 
+import it.gzanee.flightfinder.ui.screens.history.SavedSearch
+import it.gzanee.flightfinder.domain.model.JobStatus
+import it.gzanee.flightfinder.domain.search.AirportCatalog
 import it.gzanee.flightfinder.ui.i18n.names
 import it.gzanee.flightfinder.ui.i18n.UiText
 import it.gzanee.flightfinder.R
@@ -39,12 +42,20 @@ class SearchViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<UiText?>(null)
     val errorMessage: StateFlow<UiText?> = _errorMessage.asStateFlow()
 
+    private val _recent = MutableStateFlow<List<SavedSearch>>(emptyList())
+    /** Le ultime ricerche salvate, per riaprirle dalla prima schermata. */
+    val recent: StateFlow<List<SavedSearch>> = _recent.asStateFlow()
+
+    private val _catalog = MutableStateFlow<AirportCatalog?>(null)
+    val catalog: StateFlow<AirportCatalog?> = _catalog.asStateFlow()
+
     private val _longSearch = MutableStateFlow<LongSearchPrompt?>(null)
     val longSearch: StateFlow<LongSearchPrompt?> = _longSearch.asStateFlow()
 
     init {
         viewModelScope.launch {
             val catalog = airportRepository.catalog()
+            _catalog.value = catalog
             _destinationSets.value = catalog.destinationSets.map { it.key to it.value.label }
             _form.update { it.relabeled(catalog.names()) }
         }
@@ -58,6 +69,15 @@ class SearchViewModel @Inject constructor(
     fun addDestination(place: PlaceChoice) = _form.update { f ->
         val kept = if (place is PlaceChoice.Country) f.destinations.filterNot { it is PlaceChoice.Airport && it.code in place.codes } else f.destinations
         f.copy(anywhere = false, destinations = kept + place)
+    }
+
+    fun refreshRecent() = viewModelScope.launch {
+        val active = searchRepository.activeId
+        _recent.value = searchRepository.all().take(RECENT).map { job ->
+            // Una ricerca "in corso" che non gira più è stata interrotta (app chiusa).
+            val status = if (job.status.isRunning && job.id != active) JobStatus.INTERRUPTED else job.status
+            SavedSearch(job, status, job.results.values.minOfOrNull { it.price })
+        }
     }
 
     fun clearError() {
@@ -111,5 +131,6 @@ class SearchViewModel @Inject constructor(
 
     companion object {
         private const val LONG_SEARCH_MINUTES = 20
+        private const val RECENT = 3
     }
 }

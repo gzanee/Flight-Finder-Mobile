@@ -156,7 +156,7 @@
     <string name="stops_direct">Diretti</string>
     <string name="stops_one">1 scalo</string>
     <string name="stops_two">2 scali</string>
-    <string name="stops_any">Qualsiasi</string>
+    <string name="stops_any">Tutti</string>
     <string name="more_filters">Altri filtri</string>
     <string name="more_filters_hint">Arrivi, durate, scali, compagnie</string>
     <string name="arrivals">Arrivi</string>
@@ -318,6 +318,15 @@
     <string name="test_ok">Google risponde: le ricerche funzionano da questa rete.</string>
     <string name="test_failed">La prova non è riuscita. Se Google limita le richieste, aspetta un quarto d’ora o prova con un’altra rete (Wi-Fi o dati mobili).</string>
     <string name="google_answer">Risposta di Google</string>
+    <string name="search_flights">Cerca voli</string>
+    <string name="dates_title">Date e orari</string>
+    <string name="travelers_title">Viaggiatori</string>
+    <string name="nights_range">%1$d–%2$d notti</string>
+    <string name="filters_none">Nessuno</string>
+    <string name="choose">Scegli</string>
+    <string name="recent_searches">Ricerche recenti</string>
+    <string name="see_all">Vedi tutte</string>
+    <string name="anywhere_or_pick">Oppure cerca qui sopra una città, un aeroporto o un paese intero.</string>
     <plurals name="nights">
         <item quantity="one">%d notte</item>
         <item quantity="other">%d notti</item>
@@ -385,5 +394,9 @@
     <plurals name="destinations_count">
         <item quantity="one">%d meta</item>
         <item quantity="other">%d mete</item>
+    </plurals>
+    <plurals name="active_filters">
+        <item quantity="one">%d attivo</item>
+        <item quantity="other">%d attivi</item>
     </plurals>
 </resources>

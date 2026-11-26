@@ -106,18 +106,22 @@ fun StepperRow(label: String, value: Int, range: IntRange, hint: String? = null,
     }
 }
 
-/** Contatore in un riquadro: etichetta maiuscola, numero grande, − e + tondi sulla stessa riga. */
+/**
+ * Contatore in un riquadro: etichetta maiuscola (che dice già l'unità), numero grande, − e +
+ * tondi sulla stessa riga. Su un telefono stretto (360 dp) il riquadro è largo ~140 dp:
+ * i bottoni hanno un'area di tocco di 40 dp perché il numero resti leggibile.
+ */
 @Composable
-fun StepperBox(label: String, value: Int, unit: String, range: IntRange, modifier: Modifier = Modifier, onValueChange: (Int) -> Unit) {
-    Column(modifier.nested().padding(start = 14.dp, end = 4.dp, top = 12.dp, bottom = 4.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+fun StepperBox(label: String, value: Int, range: IntRange, modifier: Modifier = Modifier, onValueChange: (Int) -> Unit) {
+    Column(modifier.nested().padding(start = 14.dp, end = 6.dp, top = 12.dp, bottom = 6.dp)) {
         FieldLabel(label)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.Bottom) {
-                Text("$value", style = FlightFinderType.headline.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary)
-                Text(" $unit", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(bottom = 4.dp))
-            }
-            RoundIconButton(Icons.Filled.Remove, stringResource(R.string.cd_less, label.lowercase()), { onValueChange(value - 1) }, size = 32.dp, enabled = value > range.first)
-            RoundIconButton(Icons.Filled.Add, stringResource(R.string.cd_more, label.lowercase()), { onValueChange(value + 1) }, size = 32.dp, filled = true, enabled = value < range.last)
+            Text(
+                "$value", style = FlightFinderType.headline.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary,
+                maxLines = 1, softWrap = false, modifier = Modifier.weight(1f),
+            )
+            RoundIconButton(Icons.Filled.Remove, stringResource(R.string.cd_less, label.lowercase()), { onValueChange(value - 1) }, size = 32.dp, touch = 40.dp, enabled = value > range.first)
+            RoundIconButton(Icons.Filled.Add, stringResource(R.string.cd_more, label.lowercase()), { onValueChange(value + 1) }, size = 32.dp, touch = 40.dp, filled = true, enabled = value < range.last)
         }
     }
 }

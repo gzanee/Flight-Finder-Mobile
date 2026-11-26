@@ -1,5 +1,6 @@
 package it.gzanee.flightfinder.ui.screens.search
 
+import it.gzanee.flightfinder.ui.screens.components.dateSpan
 import it.gzanee.flightfinder.ui.i18n.destinationSetLabel
 import it.gzanee.flightfinder.ui.i18n.text
 import it.gzanee.flightfinder.ui.i18n.asString
@@ -7,7 +8,6 @@ import it.gzanee.flightfinder.ui.i18n.UiText
 import it.gzanee.flightfinder.ui.i18n.plural
 import androidx.compose.ui.res.stringResource
 import it.gzanee.flightfinder.R
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -182,7 +182,7 @@ private fun SearchDock(form: SearchFormState, isLoading: Boolean, onSearch: () -
             Column(Modifier.weight(1f).padding(end = 12.dp)) {
                 FieldLabel(stringResource(if (form.isFlexible) R.string.period else R.string.dates))
                 Text(
-                    form.startDate.short() + if (form.isRoundTrip || form.isFlexible) " → ${form.endDate.short()}" else "",
+                    if (form.isRoundTrip || form.isFlexible) dateSpan(form.startDate, form.endDate) else form.startDate.short(),
                     style = FlightFinderType.titleSm.copy(fontFeatureSettings = TABULAR), color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
             }
@@ -219,7 +219,7 @@ private fun RouteSection(
 private fun PeriodSection(form: SearchFormState, onChange: (SearchFormState.() -> SearchFormState) -> Unit) = FlightFinderCard(spacing = 18) {
     SectionHeader(stringResource(R.string.period), Icons.Outlined.CalendarMonth)
     SegmentedControl(listOf(DateMode.FLEXIBLE to stringResource(R.string.flexible_dates), DateMode.FIXED to stringResource(R.string.exact_dates)), form.dateMode, { v -> onChange { withDateMode(v) } })
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    ChipGroup {
         FlightFinderChip(stringResource(R.string.a_weekend), icon = Icons.Outlined.Weekend, onClick = { onChange { weekend() } })
         FlightFinderChip(stringResource(R.string.any_day), icon = Icons.Outlined.DateRange, onClick = { onChange { anyDay() } })
     }
@@ -231,8 +231,8 @@ private fun PeriodSection(form: SearchFormState, onChange: (SearchFormState.() -
     }
     if (form.isRoundTrip && form.isFlexible) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StepperBox(stringResource(R.string.nights_min), form.minNights, stringResource(R.string.nights_unit), 0..30, Modifier.weight(1f)) { n -> onChange { copy(minNights = n, maxNights = maxOf(n, maxNights)) } }
-            StepperBox(stringResource(R.string.nights_max), form.maxNights, stringResource(R.string.nights_unit), 0..30, Modifier.weight(1f)) { n -> onChange { copy(maxNights = n, minNights = minOf(n, minNights)) } }
+            StepperBox(stringResource(R.string.nights_min), form.minNights, 0..30, Modifier.weight(1f)) { n -> onChange { copy(minNights = n, maxNights = maxOf(n, maxNights)) } }
+            StepperBox(stringResource(R.string.nights_max), form.maxNights, 0..30, Modifier.weight(1f)) { n -> onChange { copy(maxNights = n, minNights = minOf(n, minNights)) } }
         }
     }
     if (form.isFlexible) {

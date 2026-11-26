@@ -134,10 +134,11 @@ fun RoundIconButton(
     size: Dp = 38.dp,
     enabled: Boolean = true,
     loading: Boolean = false,
+    touch: Dp = 48.dp,
 ) {
     val ink = (if (filled) colors.onBrandFill else colors.textPrimary).copy(alpha = if (enabled) 1f else 0.35f)
     Box(
-        Modifier.size(maxOf(size, 48.dp)).clip(CircleShape)
+        Modifier.size(maxOf(size, touch)).clip(CircleShape)
             .clickable(enabled = enabled && !loading, role = Role.Button, onClickLabel = description, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

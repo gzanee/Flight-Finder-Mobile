@@ -86,7 +86,8 @@ private fun LegTimes(quote: Quote, names: PlaceNames?, detailed: Boolean) {
                 if (nextDay) Text("+1", style = FlightFinderType.label, color = colors.warn, modifier = Modifier.padding(start = 2.dp))
             }
             Text(
-                if (detailed && names != null) "${names.city(last.toCode)} · ${last.toCode}" else "${last.toCode} · ${last.arrival.shortDay()}",
+                // Il giorno è già a sinistra; un arrivo il giorno dopo lo segna "+1".
+                if (detailed && names != null) "${names.city(last.toCode)} · ${last.toCode}" else last.toCode,
                 style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End,
             )
         }

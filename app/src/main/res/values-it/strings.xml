@@ -135,7 +135,6 @@
     <string name="return_date">Ritorno</string>
     <string name="nights_min">Notti, minimo</string>
     <string name="nights_max">Notti, massimo</string>
-    <string name="nights_unit">notti</string>
     <string name="flexible_hint_round">Confrontiamo tutte le partenze e i ritorni possibili in questo periodo, nei giorni e con le notti che scegli.</string>
     <string name="flexible_hint_one_way">Confrontiamo tutte le partenze possibili in questo periodo, nei giorni che scegli.</string>
     <string name="leave_from">Parto dalle</string>

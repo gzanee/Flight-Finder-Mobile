@@ -135,7 +135,6 @@
     <string name="return_date">Return</string>
     <string name="nights_min">Nights, minimum</string>
     <string name="nights_max">Nights, maximum</string>
-    <string name="nights_unit">nights</string>
     <string name="flexible_hint_round">We compare every possible departure and return in this period, on the days and with the nights you choose.</string>
     <string name="flexible_hint_one_way">We compare every possible departure in this period, on the days you choose.</string>
     <string name="leave_from">Leave from</string>

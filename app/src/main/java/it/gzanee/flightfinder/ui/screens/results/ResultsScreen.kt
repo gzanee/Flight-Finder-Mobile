@@ -1,5 +1,13 @@
 package it.gzanee.flightfinder.ui.screens.results
 
+import it.gzanee.flightfinder.ui.i18n.remaining
+import it.gzanee.flightfinder.ui.i18n.names
+import it.gzanee.flightfinder.ui.i18n.engineProgress
+import it.gzanee.flightfinder.ui.i18n.engineText
+import it.gzanee.flightfinder.ui.i18n.text
+import it.gzanee.flightfinder.ui.i18n.plural
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,12 +55,8 @@ import it.gzanee.flightfinder.domain.model.JobStatus
 import it.gzanee.flightfinder.domain.model.SearchJob
 import it.gzanee.flightfinder.domain.model.SortOrder
 import it.gzanee.flightfinder.domain.model.TripSummary
-import it.gzanee.flightfinder.domain.search.AirportCatalog
 import it.gzanee.flightfinder.ui.format.asDuration
 import it.gzanee.flightfinder.ui.format.asEuro
-import it.gzanee.flightfinder.ui.format.count
-import it.gzanee.flightfinder.ui.format.flagOf
-import it.gzanee.flightfinder.ui.format.remaining
 import it.gzanee.flightfinder.ui.format.short
 import it.gzanee.flightfinder.ui.screens.components.BannerTone
 import it.gzanee.flightfinder.ui.screens.components.ButtonStyle
@@ -81,14 +85,6 @@ import it.gzanee.flightfinder.ui.screens.components.TripCard
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import it.gzanee.flightfinder.ui.theme.FlightFinderType
 import it.gzanee.flightfinder.ui.theme.TABULAR
-
-/** Nomi di città e bandiere dal catalogo aeroporti. */
-fun AirportCatalog?.names() = object : PlaceNames {
-    override fun city(code: String) = this@names?.city(code) ?: code
-    override fun flag(code: String) = this@names?.details(code)?.country?.let(::flagOf).orEmpty()
-    override fun country(code: String) = this@names?.let { c -> c.countryNames[c.details(code).country] }.orEmpty()
-    override fun airport(code: String) = this@names?.details(code)?.name.orEmpty()
-}
 
 @Composable
 fun ResultsScreen(
@@ -143,21 +139,21 @@ fun ResultsScreenContent(
     val title = view?.job?.request?.let { r ->
         val cities = r.destinations.map(names::city).distinct()
         val to = when {
-            cities.isEmpty() -> "Ovunque"
-            cities.size > 2 -> "${cities.size} mete"
+            cities.isEmpty() -> stringResource(R.string.anywhere)
+            cities.size > 2 -> stringResource(R.string.n_destinations, cities.size)
             else -> cities.joinToString(", ")
         }
         "${r.origins.joinToString(" + ") { names.city(it) }} → $to"
-    } ?: "Ricerca"
+    } ?: stringResource(R.string.search_title)
     FlightFinderScaffold(
         title = title,
-        subtitle = view?.job?.status?.label,
+        subtitle = view?.job?.status?.text(),
         onBack = onBack,
-        action = view?.job?.takeIf { !it.status.isRunning }?.let { job -> HeaderAction(Icons.Outlined.Edit, "Modifica ricerca") { onEdit(job) } },
+        action = view?.job?.takeIf { !it.status.isRunning }?.let { job -> HeaderAction(Icons.Outlined.Edit, stringResource(R.string.edit_search)) { onEdit(job) } },
         onToggleTheme = onToggleTheme,
     ) {
         if (view == null) {
-            Column(Modifier.padding(16.dp)) { state.errorMessage?.let { InfoBanner(it, BannerTone.BAD) } ?: HintText("Carico la ricerca…") }
+            Column(Modifier.padding(16.dp)) { state.errorMessage?.let { InfoBanner(engineText(it), BannerTone.BAD) } ?: HintText(stringResource(R.string.loading_search)) }
             return@FlightFinderScaffold
         }
         val job = view.job
@@ -179,39 +175,41 @@ fun ResultsScreenContent(
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             when {
-                                page.filteredCount > 0 -> if (job.request.isRoundTrip) "Andata e ritorno" else "Solo andata"
-                                job.status.isRunning -> "Cerchiamo…"
-                                else -> "Nessun viaggio"
+                                page.filteredCount > 0 -> stringResource(if (job.request.isRoundTrip) R.string.round_trip else R.string.one_way)
+                                job.status.isRunning -> stringResource(R.string.searching)
+                                else -> stringResource(R.string.no_trips)
                             },
                             style = FlightFinderType.headline, color = colors.textPrimary,
                         )
-                        if (page.filteredCount > 0) CodeBadge(count(page.filteredCount, "trovato", "trovati").uppercase())
+                        if (page.filteredCount > 0) CodeBadge(plural(R.plurals.found_badge, page.filteredCount).uppercase())
                     }
                     HintText(
-                        (if (job.status == JobStatus.COMPLETE) "" else "I risultati si aggiornano mentre cerchiamo. ") +
-                            "Prezzi totali per ${count(job.request.travelers, "viaggiatore", "viaggiatori")}, orari locali" +
-                            if (job.request.isRoundTrip) ", andata e ritorno con due biglietti separati." else ".",
+                        (if (job.status == JobStatus.COMPLETE) "" else stringResource(R.string.results_updating)) +
+                            stringResource(
+                                if (job.request.isRoundTrip) R.string.results_note_round else R.string.results_note_one_way,
+                                plural(R.plurals.travelers, job.request.travelers),
+                            ),
                     )
                 }
             }
             if (page.recommendations.cheapest != null) {
-                item { SectionHeader("Suggeriti", Icons.Outlined.AutoAwesome, meta = "Tocca per vederlo", modifier = Modifier.padding(horizontal = 4.dp)) }
+                item { SectionHeader(stringResource(R.string.suggested), Icons.Outlined.AutoAwesome, meta = stringResource(R.string.tap_to_see), modifier = Modifier.padding(horizontal = 4.dp)) }
                 item { Recommendations(state, names, onFocus) }
             }
             if (page.calendar.size > 1) {
-                item { FlightFinderCard { CollapsibleSection("Prezzi per data", summary = "Il giorno più economico per partire", icon = Icons.Outlined.CalendarMonth) { PriceCalendar(page.calendar) } } }
+                item { FlightFinderCard { CollapsibleSection(stringResource(R.string.prices_by_date), summary = stringResource(R.string.prices_by_date_hint), icon = Icons.Outlined.CalendarMonth) { PriceCalendar(page.calendar) } } }
             }
             item {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SegmentedControl(listOf(ResultsMode.DESTINATIONS to "Mete", ResultsMode.TRIPS to "Tutti i voli"), mode, onMode, Modifier.weight(1f))
+                    SegmentedControl(listOf(ResultsMode.DESTINATIONS to stringResource(R.string.mode_destinations), ResultsMode.TRIPS to stringResource(R.string.mode_all_flights)), mode, onMode, Modifier.weight(1f))
                     val active = state.filters.activeCount
-                    FlightFinderButton(if (active > 0) "Filtri · $active" else "Filtri", { showFilters = true }, style = ButtonStyle.SECONDARY, leadingIcon = Icons.Outlined.Tune)
+                    FlightFinderButton(if (active > 0) stringResource(R.string.filters_count, active) else stringResource(R.string.filters), { showFilters = true }, style = ButtonStyle.SECONDARY, leadingIcon = Icons.Outlined.Tune)
                 }
             }
             if (state.filters.destinations.isNotEmpty()) {
                 item {
                     FlightFinderButton(
-                        "Tutte le mete", onAllDestinations, style = ButtonStyle.GHOST, leadingIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                        stringResource(R.string.all_destinations), onAllDestinations, style = ButtonStyle.GHOST, leadingIcon = Icons.AutoMirrored.Filled.ArrowBack,
                     )
                 }
             }
@@ -219,23 +217,23 @@ fun ResultsScreenContent(
                 item {
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         SortOrder.entries.filter { job.request.isRoundTrip || it != SortOrder.USEFUL }.forEach { sort ->
-                            FlightFinderChip(sort.label, selected = state.sort == sort, onClick = { onSort(sort) })
+                            FlightFinderChip(sort.text(), selected = state.sort == sort, onClick = { onSort(sort) })
                         }
                     }
                 }
-                if (page.focusedId == null && state.focus != null) item { HintText("Questo viaggio non è più tra i risultati.", warn = true) }
+                if (page.focusedId == null && state.focus != null) item { HintText(stringResource(R.string.trip_gone), warn = true) }
                 if (page.results.isEmpty()) item { EmptyResults(page.resultCount, job.status.isRunning) { onFilters(it.gzanee.flightfinder.domain.model.ResultFilters()) } }
                 val best = page.recommendations.cheapest?.id
                 items(page.results, key = { it.id }) { trip -> TripCard(trip, names, trip.id == page.focusedId, best = trip.id == best) { onTrip(trip.id) } }
                 if (page.hasMore || page.offset > 0) {
                     item {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            FlightFinderButton("Precedenti", onPrevious, style = ButtonStyle.OUTLINE, enabled = page.offset > 0, leadingIcon = Icons.AutoMirrored.Filled.ArrowBack)
+                            FlightFinderButton(stringResource(R.string.previous), onPrevious, style = ButtonStyle.OUTLINE, enabled = page.offset > 0, leadingIcon = Icons.AutoMirrored.Filled.ArrowBack)
                             Text(
-                                "${page.offset + 1}–${page.offset + page.results.size} di ${page.filteredCount}", style = FlightFinderType.label.copy(fontFeatureSettings = TABULAR),
+                                stringResource(R.string.page_range, page.offset + 1, page.offset + page.results.size, page.filteredCount), style = FlightFinderType.label.copy(fontFeatureSettings = TABULAR),
                                 color = colors.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
                             )
-                            FlightFinderButton("Successivi", onNext, style = ButtonStyle.OUTLINE, enabled = page.hasMore, trailingIcon = Icons.AutoMirrored.Filled.ArrowForward)
+                            FlightFinderButton(stringResource(R.string.next), onNext, style = ButtonStyle.OUTLINE, enabled = page.hasMore, trailingIcon = Icons.AutoMirrored.Filled.ArrowForward)
                         }
                     }
                 }
@@ -261,36 +259,36 @@ private fun dates(s: TripSummary) = s.date.short() + (s.returnDate?.let { " – 
 
 @Composable
 private fun EmptyResults(resultCount: Int, running: Boolean, onReset: () -> Unit) = FlightFinderCard {
-    SectionTitle(if (resultCount > 0) "Nessun viaggio con questi filtri" else if (running) "Stiamo cercando…" else "Nessun volo trovato")
+    SectionTitle(stringResource(if (resultCount > 0) R.string.empty_filtered_title else if (running) R.string.empty_running_title else R.string.empty_title))
     HintText(
         when {
-            resultCount > 0 -> "Prova ad alzare il prezzo massimo o ad azzerare i filtri."
-            running -> "I primi voli compaiono qui appena li troviamo."
-            else -> "Prova altre date, aggiungi aeroporti vicini, accetta uno scalo o alza il budget."
+            resultCount > 0 -> stringResource(R.string.empty_filtered_hint)
+            running -> stringResource(R.string.empty_running_hint)
+            else -> stringResource(R.string.empty_hint)
         },
     )
-    if (resultCount > 0) FlightFinderButton("Azzera filtri", onReset, style = ButtonStyle.SECONDARY)
+    if (resultCount > 0) FlightFinderButton(stringResource(R.string.reset_filters), onReset, style = ButtonStyle.SECONDARY)
 }
 
 @Composable
 private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Boolean, onCancel: () -> Unit, onResume: () -> Unit) = FlightFinderCard {
     val r = job.request
     val running = job.status.isRunning
-    SectionHeader("Avanzamento", Icons.Outlined.Sync, meta = if (job.total > 0) "${(100 * job.completed / job.total).coerceIn(0, 100)}%" else null)
+    SectionHeader(stringResource(R.string.progress), Icons.Outlined.Sync, meta = if (job.total > 0) "${(100 * job.completed / job.total).coerceIn(0, 100)}%" else null)
     Text(
         when (job.status) {
-            JobStatus.RUNNING -> "Stiamo cercando i voli migliori…"
-            JobStatus.CANCELLING -> "Ci fermiamo…"
-            JobStatus.CANCELLED -> "Ricerca fermata"
-            JobStatus.BLOCKED -> "Ricerca in pausa"
-            JobStatus.INTERRUPTED -> "Ricerca interrotta"
-            JobStatus.COMPLETE -> "Ricerca completata"
+            JobStatus.RUNNING -> stringResource(R.string.progress_running)
+            JobStatus.CANCELLING -> stringResource(R.string.progress_cancelling)
+            JobStatus.CANCELLED -> stringResource(R.string.progress_cancelled)
+            JobStatus.BLOCKED -> stringResource(R.string.progress_blocked)
+            JobStatus.INTERRUPTED -> stringResource(R.string.progress_interrupted)
+            JobStatus.COMPLETE -> stringResource(R.string.progress_complete)
         },
         style = FlightFinderType.title, color = colors.textPrimary,
     )
     HintText(
-        "${r.origins.joinToString(" + ") { names.city(it) }} → ${if (r.destinations.isEmpty()) "ovunque" else r.destinations.map(names::city).distinct().joinToString(", ")} · " +
-            r.startDate.short() + (if (r.startDate == r.endDate) "" else " – ${r.endDate.short()}") + " · ${count(r.travelers, "viaggiatore", "viaggiatori")}",
+        "${r.origins.joinToString(" + ") { names.city(it) }} → ${if (r.destinations.isEmpty()) stringResource(R.string.anywhere_lower) else r.destinations.map(names::city).distinct().joinToString(", ")} · " +
+            r.startDate.short() + (if (r.startDate == r.endDate) "" else " – ${r.endDate.short()}") + " · " + plural(R.plurals.travelers, r.travelers),
     )
     LinearProgressIndicator(
         progress = { if (job.total > 0) (job.completed.toFloat() / job.total).coerceIn(0f, 1f) else 0f },
@@ -301,19 +299,19 @@ private fun ProgressCard(job: SearchJob, found: Int, names: PlaceNames, busy: Bo
         drawStopIndicator = {},
     )
     Text(
-        count(found, "viaggio trovato", "viaggi trovati") + if (running) " finora · ancora ${remaining(job.etaSeconds)}" else "",
+        plural(R.plurals.trips_found, found).let { if (running) stringResource(R.string.found_so_far, it, remaining(job.etaSeconds)) else it },
         style = FlightFinderType.body.copy(fontWeight = FontWeight.SemiBold), color = colors.textPrimary,
     )
     val current = job.current
         ?.replace(Regex("\\b[A-Z0-9]{3}\\b")) { names.city(it.value) }
         ?.replace(Regex("\\d{4}-\\d{2}-\\d{2}")) { java.time.LocalDate.parse(it.value).short() }
-    if (running && current != null) HintText("Ora: $current")
-    if (running) HintText("Tieni l’app aperta: lo schermo resta acceso. Se esci, la ricerca si ferma e potrai riprenderla.", warn = true)
-    if (job.issues.isNotEmpty()) InfoBanner(job.issues.joinToString(" "))
+    if (running && current != null) HintText(stringResource(R.string.now_searching, engineProgress(current)))
+    if (running) HintText(stringResource(R.string.keep_open), warn = true)
+    if (job.issues.isNotEmpty()) InfoBanner(job.issues.map { engineText(it) }.joinToString(" "))
     if (running) {
-        FlightFinderButton("Ferma", onCancel, Modifier.fillMaxWidth(), ButtonStyle.DANGER, enabled = job.status != JobStatus.CANCELLING, leadingIcon = Icons.Outlined.StopCircle)
+        FlightFinderButton(stringResource(R.string.stop), onCancel, Modifier.fillMaxWidth(), ButtonStyle.DANGER, enabled = job.status != JobStatus.CANCELLING, leadingIcon = Icons.Outlined.StopCircle)
     } else if (job.status.canResume) {
-        FlightFinderButton("Riprendi", onResume, Modifier.fillMaxWidth(), isLoading = busy, leadingIcon = Icons.Outlined.PlayArrow)
+        FlightFinderButton(stringResource(R.string.resume), onResume, Modifier.fillMaxWidth(), isLoading = busy, leadingIcon = Icons.Outlined.PlayArrow)
     }
 }
 
@@ -323,10 +321,10 @@ private fun Recommendations(state: ResultsUiState, names: PlaceNames, onFocus: (
     val round = state.view.job.request.isRoundTrip
     data class Pick(val title: String, val trip: TripSummary?, val why: String, val best: Boolean)
     val cards = buildList {
-        add(Pick("Il più economico", r.cheapest, "Il prezzo più basso trovato.", true))
+        add(Pick(stringResource(R.string.pick_cheapest), r.cheapest, stringResource(R.string.pick_cheapest_why), true))
         if (round) {
-            add(Pick("Più tempo sul posto", r.longest, if (r.longest?.id == r.cheapest?.id) "Ed è anche il più economico." else if (r.longest != null) "Il soggiorno più lungo." else "Nessun confronto possibile.", false))
-            add(Pick("Il compromesso", r.balanced, r.balanced?.let { "${(it.extraPrice ?: 0.0).asEuro()} in più, ${(it.extraMinutes ?: 0).asDuration()} in più sul posto." } ?: "Il più economico è già la scelta migliore.", false))
+            add(Pick(stringResource(R.string.pick_longest), r.longest, stringResource(if (r.longest?.id == r.cheapest?.id) R.string.pick_longest_also_cheapest else if (r.longest != null) R.string.pick_longest_why else R.string.pick_no_comparison), false))
+            add(Pick(stringResource(R.string.pick_balanced), r.balanced, r.balanced?.let { stringResource(R.string.pick_balanced_why, (it.extraPrice ?: 0.0).asEuro(), (it.extraMinutes ?: 0).asDuration()) } ?: stringResource(R.string.pick_balanced_none), false))
         }
     }
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -346,10 +344,10 @@ private fun Recommendations(state: ResultsUiState, names: PlaceNames, onFocus: (
                             )
                             Text(trip.price.asEuro(), style = FlightFinderType.price, color = colors.textPrimary)
                         }
-                        RoundIconButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Vedi il viaggio", { onFocus(trip.id) }, filled = true, size = 36.dp)
+                        RoundIconButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.see_trip), { onFocus(trip.id) }, filled = true, size = 36.dp)
                     }
                     Text(
-                        "${dates(trip)} · da ${names.city(trip.origin)}" + (trip.usefulMinutes?.let { " · ${it.asDuration()} ${if (trip.destinationAirportChange) "tra i voli" else "sul posto"}" } ?: ""),
+                        "${dates(trip)} · ${stringResource(R.string.from_city, names.city(trip.origin))}" + (trip.usefulMinutes?.let { " · " + stringResource(if (trip.destinationAirportChange) R.string.time_between else R.string.time_there, it.asDuration()) } ?: ""),
                         style = FlightFinderType.label, color = colors.textTertiary, maxLines = 2,
                     )
                 } else {
@@ -363,13 +361,13 @@ private fun Recommendations(state: ResultsUiState, names: PlaceNames, onFocus: (
 @Composable
 private fun DestinationCard(group: DestinationGroup, allDestinations: List<String>, names: PlaceNames, best: Boolean, onOpen: (Set<String>) -> Unit) {
     // Il filtro prende tutti gli aeroporti della città fra i risultati, non solo quelli rimasti dopo i filtri.
-    val cityAirports = allDestinations.filter { names.city(it) == group.city }.toSet().ifEmpty { group.destinations.toSet() }
     val code = group.destinations.first()
+    val cityAirports = allDestinations.filter { names.city(it) == names.city(code) }.toSet().ifEmpty { group.destinations.toSet() }
     FlightFinderCard(onClick = { onOpen(cityAirports) }, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)) {
         ListRow(
-            title = group.city,
+            title = names.city(code),
             detail = listOf(names.country(code), group.destinations.joinToString(", ")).filter { it.isNotEmpty() }.joinToString(" · "),
-            subdetail = "${dates(group.featured)} · da ${names.city(group.featured.origin)}",
+            subdetail = "${dates(group.featured)} · ${stringResource(R.string.from_city, names.city(group.featured.origin))}",
             leading = { FlagTile(names.flag(code)) },
         ) {
             Column(horizontalAlignment = Alignment.End) {
@@ -377,7 +375,7 @@ private fun DestinationCard(group: DestinationGroup, allDestinations: List<Strin
                     if (best) StatusDot(colors.accent)
                     Text(group.cheapest.price.asEuro(), style = FlightFinderType.price.copy(fontSize = FlightFinderType.title.fontSize), color = colors.textPrimary)
                 }
-                Text(count(group.count, "opzione", "opzioni"), style = FlightFinderType.label, color = colors.textTertiary)
+                Text(plural(R.plurals.options, group.count), style = FlightFinderType.label, color = colors.textTertiary)
             }
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
         }

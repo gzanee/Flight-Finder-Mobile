@@ -1,5 +1,7 @@
 package it.gzanee.flightfinder.ui.screens.components
 
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,7 +56,7 @@ fun FlightFinderChip(
         if (icon != null) Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(15.dp))
         Text(label, style = FlightFinderType.body.copy(fontWeight = FontWeight.SemiBold), color = ink, maxLines = 1)
         if (detail != null) Text(detail, style = FlightFinderType.label, color = if (selected) ink.copy(alpha = 0.7f) else colors.textTertiary)
-        if (onRemove != null) Icon(Icons.Filled.Close, contentDescription = "Rimuovi $label", tint = colors.textTertiary, modifier = Modifier.size(15.dp))
+        if (onRemove != null) Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.cd_remove, label), tint = colors.textTertiary, modifier = Modifier.size(15.dp))
     }
 }
 

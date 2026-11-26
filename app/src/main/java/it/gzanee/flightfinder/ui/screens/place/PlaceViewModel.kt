@@ -1,5 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.place
 
+import it.gzanee.flightfinder.ui.format.isItalian
+import it.gzanee.flightfinder.ui.i18n.countryName
+import it.gzanee.flightfinder.ui.i18n.names
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -61,12 +64,20 @@ class PlaceViewModel @Inject constructor(
     private fun search(catalog: AirportCatalog, query: String, request: PlaceRequest): List<PlaceHit> {
         val q = query.trim()
         if (q.length < 2) return emptyList()
-        val airports = catalog.search(q, 12).filter { it.code !in request.taken }.map { PlaceHit.Airport(it.code, it.name, it.city) }
-        if (!request.countries) return airports
+        val names = catalog.names()
+        val english = !isItalian()
         val needle = AirportCatalog.normalize(q)
+        // In inglese si cercano anche le città col nome inglese ("Venice", "Munich"); la ricerca del portale resta quella.
+        val englishCodes = if (english) catalog.englishCities.filterValues { AirportCatalog.normalize(it).startsWith(needle) }.keys.sorted() else emptyList()
+        val codes = (englishCodes + catalog.search(q, 12).map { it.code }).distinct().filter { catalog.exists(it) && it !in request.taken }.take(12)
+        val airports = codes.map { code -> PlaceHit.Airport(code, if (english) names.airport(code) else catalog.name(code).orEmpty(), names.city(code)) }
+        if (!request.countries) return airports
         val countries = catalog.countries(request.origins)
-            .map { (code, group) -> PlaceHit.Country(code, catalog.countryNames[code] ?: code.uppercase(), group.linked, group.airports) }
-            .filter { AirportCatalog.normalize(it.name).startsWith(needle) || it.country == needle }
+            .filter { (code, _) ->
+                // Il nome del paese nella lingua dell'app, oppure quello italiano del portale.
+                listOfNotNull(countryName(code), catalog.countryNames[code]).any { AirportCatalog.normalize(it).startsWith(needle) } || code == needle
+            }
+            .map { (code, group) -> PlaceHit.Country(code, countryName(code), group.linked, group.airports.map { it.copy(city = names.city(it.code)) }) }
             .filter { it.key !in request.taken }
             .sortedBy { it.name }
             .take(3)

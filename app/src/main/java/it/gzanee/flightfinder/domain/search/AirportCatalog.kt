@@ -22,6 +22,8 @@ class AirportCatalog(
     routesJson: String,
     airlinesJson: String,
     countriesJson: String,
+    /** Città in inglese dove il nome cambia (data/catalog/cities_en.json); solo per mostrarle, la ricerca resta quella del portale. */
+    citiesEnJson: String = "{}",
 ) {
     private class Row(val name: String, val city: String, val display: String, val country: String, val zone: String, val decoder: Boolean)
 
@@ -38,6 +40,7 @@ class AirportCatalog(
     val destinationSets: Map<String, DestinationSet>
     val airlineCodes: Set<String>
     val countryNames: Map<String, String>
+    val englishCities: Map<String, String> = Json.parseToJsonElement(citiesEnJson).jsonObject.mapValues { it.value.jsonPrimitive.content }
 
     init {
         fun JsonElement.strings() = jsonArray.map { it.jsonPrimitive.content }

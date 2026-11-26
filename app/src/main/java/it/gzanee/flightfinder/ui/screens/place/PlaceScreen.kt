@@ -1,5 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.place
 
+import it.gzanee.flightfinder.ui.i18n.plural
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.CircleShape
@@ -34,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.gzanee.flightfinder.domain.search.MAX_DESTINATIONS
 import it.gzanee.flightfinder.domain.search.MAX_ORIGINS
-import it.gzanee.flightfinder.ui.format.count
 import it.gzanee.flightfinder.ui.format.flagOf
 import it.gzanee.flightfinder.ui.preview.DevicePreview
 import it.gzanee.flightfinder.ui.screens.components.BannerTone
@@ -108,8 +110,8 @@ fun PlaceScreenContent(
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     FlightFinderScaffold(
-        title = if (isOrigin) "Da dove parti" else "Dove vuoi andare",
-        subtitle = if (isOrigin) "Aeroporti di partenza" else "Città, aeroporti o paesi interi",
+        title = stringResource(if (isOrigin) R.string.where_from else R.string.where_to),
+        subtitle = stringResource(if (isOrigin) R.string.departure_airports else R.string.places_hint),
         onBack = onBack,
         onToggleTheme = onToggleTheme,
     ) {
@@ -125,26 +127,26 @@ fun PlaceScreenContent(
                     singleLine = true,
                     textStyle = FlightFinderType.body.copy(fontSize = FlightFinderType.titleSm.fontSize, color = colors.textPrimary),
                     leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = colors.textSecondary) },
-                    placeholder = { Text(if (isOrigin) "Cerca aeroporto, città o codice IATA" else "Cerca città, paese o aeroporto", style = FlightFinderType.body, color = colors.textTertiary) },
+                    placeholder = { Text(stringResource(if (isOrigin) R.string.search_airport_hint else R.string.search_place_hint), style = FlightFinderType.body, color = colors.textTertiary) },
                     shape = CircleShape,
                     colors = fieldColors(),
                     modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
             }
-            if (limitReached) item { InfoBanner("Hai raggiunto il numero massimo di aeroporti.", BannerTone.BAD) }
+            if (limitReached) item { InfoBanner(stringResource(R.string.limit_reached), BannerTone.BAD) }
             if (chosen.isNotEmpty()) {
                 item {
                     Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        FieldLabel("Selezionati (${chosen.size})")
+                        FieldLabel(stringResource(R.string.selected_count, chosen.size))
                         ChipGroup {
                             chosen.forEach {
-                                FlightFinderChip(it.label, detail = if (it is PlaceChoice.Country) "${it.codes.size} aeroporti" else it.codes.single())
+                                FlightFinderChip(it.label, detail = if (it is PlaceChoice.Country) plural(R.plurals.airports, it.codes.size) else it.codes.single())
                             }
                         }
                     }
                 }
             }
-            if (query.trim().length >= 2 && hits.isEmpty()) item { HintText("Nessun aeroporto trovato. Prova con il nome inglese o il codice IATA.") }
+            if (query.trim().length >= 2 && hits.isEmpty()) item { HintText(stringResource(R.string.no_airport_found)) }
             if (hits.isNotEmpty()) {
                 item {
                     FlightFinderCard(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp), spacing = 0) {
@@ -157,7 +159,7 @@ fun PlaceScreenContent(
             }
         }
         FlightFinderButton(
-            if (chosen.isEmpty()) "Fatto" else "Conferma · ${count(chosen.size, if (isOrigin) "partenza" else "meta", if (isOrigin) "partenze" else "mete")}",
+            if (chosen.isEmpty()) stringResource(R.string.done) else stringResource(R.string.confirm_count, plural(if (isOrigin) R.plurals.origins_count else R.plurals.destinations_count, chosen.size)),
             onBack, Modifier.imePadding().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp).fillMaxWidth().heightIn(min = 56.dp),
             trailingIcon = Icons.Filled.Check,
         )
@@ -173,8 +175,8 @@ private fun HitRow(hit: PlaceHit, enabled: Boolean, onClick: () -> Unit) {
         },
         detail = when (hit) {
             is PlaceHit.Country ->
-                if (hit.linked) "Tutto il paese · ${count(hit.airports.size, "aeroporto collegato", "aeroporti collegati")}"
-                else "Senza voli diretti noti · " + hit.airports.map { it.city }.distinct().joinToString(", ")
+                if (hit.linked) stringResource(R.string.whole_country, plural(R.plurals.linked_airports, hit.airports.size))
+                else stringResource(R.string.no_known_direct, hit.airports.map { it.city }.distinct().joinToString(", "))
             is PlaceHit.Airport -> hit.name
         },
         leading = {
@@ -185,7 +187,7 @@ private fun HitRow(hit: PlaceHit, enabled: Boolean, onClick: () -> Unit) {
         },
         onClick = if (enabled) onClick else null,
     ) {
-        RoundIconButton(Icons.Filled.Add, "Aggiungi", onClick, size = 34.dp, enabled = enabled)
+        RoundIconButton(Icons.Filled.Add, stringResource(R.string.add), onClick, size = 34.dp, enabled = enabled)
     }
 }
 

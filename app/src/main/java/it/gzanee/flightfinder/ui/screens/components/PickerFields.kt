@@ -1,5 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.components
 
+import it.gzanee.flightfinder.ui.format.short
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,7 +45,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /** Riquadro tenue con l'etichetta maiuscola sopra il valore; il tocco apre il selettore. */
 @Composable
@@ -61,20 +63,19 @@ private fun PickerBox(label: String?, text: String, isPlaceholder: Boolean, icon
             )
         }
         if (onClear != null && !isPlaceholder) {
-            Icon(Icons.Filled.Close, contentDescription = "Cancella", tint = colors.textTertiary, modifier = Modifier.size(32.dp).clickable(onClick = onClear).padding(7.dp))
+            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.cd_clear), tint = colors.textTertiary, modifier = Modifier.size(32.dp).clickable(onClick = onClear).padding(7.dp))
         } else {
             Icon(icon, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
         }
     }
 }
 
-private val SHORT_DATE = DateTimeFormatter.ofPattern("EEE d MMM", Locale.ITALIAN)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateField(label: String?, value: LocalDate, minimum: LocalDate?, modifier: Modifier = Modifier, onValueChange: (LocalDate) -> Unit) {
     var open by remember { mutableStateOf(false) }
-    PickerBox(label, value.format(SHORT_DATE), false, Icons.Outlined.CalendarMonth, modifier, null) { open = true }
+    PickerBox(label, value.short(), false, Icons.Outlined.CalendarMonth, modifier, null) { open = true }
     if (!open) return
     val minMillis = minimum?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
     val state = rememberDatePickerState(
@@ -89,9 +90,9 @@ fun DateField(label: String?, value: LocalDate, minimum: LocalDate?, modifier: M
             TextButton(onClick = {
                 state.selectedDateMillis?.let { onValueChange(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) }
                 open = false
-            }) { Text("OK", color = colors.brand) }
+            }) { Text(stringResource(R.string.ok), color = colors.brand) }
         },
-        dismissButton = { TextButton(onClick = { open = false }) { Text("Annulla", color = colors.textSecondary) } },
+        dismissButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.cancel), color = colors.textSecondary) } },
         colors = DatePickerDefaults.colors(containerColor = colors.surface),
     ) {
         DatePicker(
@@ -133,9 +134,9 @@ fun TimeField(
             TextButton(onClick = {
                 onValueChange(LocalTime.of(state.hour, state.minute))
                 open = false
-            }) { Text("OK", color = colors.brand) }
+            }) { Text(stringResource(R.string.ok), color = colors.brand) }
         },
-        dismissButton = { TextButton(onClick = { open = false }) { Text("Annulla", color = colors.textSecondary) } },
+        dismissButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.cancel), color = colors.textSecondary) } },
         text = { TimePicker(state = state) },
     )
 }

@@ -1,5 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.diagnostics
 
+import it.gzanee.flightfinder.ui.i18n.engineText
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,19 +41,19 @@ fun DiagnosticsScreen(viewModel: DiagnosticsViewModel, onBack: () -> Unit, onTog
 /** Una sola ricerca vera, per sapere se Google risponde a questo telefono. */
 @Composable
 fun DiagnosticsScreenContent(result: ConnectionTest?, isLoading: Boolean, onRun: () -> Unit = {}, onBack: () -> Unit = {}, onToggleTheme: () -> Unit = {}) {
-    FlightFinderScaffold(title = "Prova connessione", subtitle = "Una ricerca reale su Google Flights", onBack = onBack, onToggleTheme = onToggleTheme) {
+    FlightFinderScaffold(title = stringResource(R.string.test_title), subtitle = stringResource(R.string.test_subtitle), onBack = onBack, onToggleTheme = onToggleTheme) {
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            HintText("Una sola ricerca reale, Venezia → Barcellona tra 30 giorni, dalla connessione di questo telefono. Serve a capire se Google risponde prima di avviare ricerche lunghe.")
-            FlightFinderButton("Prova adesso", onRun, Modifier.fillMaxWidth(), isLoading = isLoading, leadingIcon = Icons.Outlined.NetworkCheck)
+            HintText(stringResource(R.string.test_hint))
+            FlightFinderButton(stringResource(R.string.test_now), onRun, Modifier.fillMaxWidth(), isLoading = isLoading, leadingIcon = Icons.Outlined.NetworkCheck)
             when (result?.ok) {
-                true -> InfoBanner("Google risponde: le ricerche funzionano da questa rete.", BannerTone.GOOD)
-                false -> InfoBanner("La prova non è riuscita. Se Google limita le richieste, aspetta un quarto d’ora o prova con un’altra rete (Wi-Fi o dati mobili).", BannerTone.BAD)
+                true -> InfoBanner(stringResource(R.string.test_ok), BannerTone.GOOD)
+                false -> InfoBanner(stringResource(R.string.test_failed), BannerTone.BAD)
                 null -> Unit
             }
             if (result != null) {
                 FlightFinderCard {
-                    Overline("Risposta di Google")
-                    result.lines.forEach { Text(it, color = colors.textPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace) }
+                    Overline(stringResource(R.string.google_answer))
+                    result.lines.forEach { Text(engineText(it), color = colors.textPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace) }
                 }
             }
         }

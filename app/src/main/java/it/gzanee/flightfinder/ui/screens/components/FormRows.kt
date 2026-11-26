@@ -1,5 +1,9 @@
 package it.gzanee.flightfinder.ui.screens.components
 
+import java.time.format.TextStyle
+import it.gzanee.flightfinder.ui.format.appLocale
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -96,9 +100,9 @@ fun StepperRow(label: String, value: Int, range: IntRange, hint: String? = null,
             Text(label, style = FlightFinderType.body.copy(fontWeight = FontWeight.Medium), color = colors.textPrimary)
             if (hint != null) Text(hint, style = FlightFinderType.label, color = colors.textTertiary)
         }
-        RoundIconButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 34.dp, enabled = value > range.first)
+        RoundIconButton(Icons.Filled.Remove, stringResource(R.string.cd_less, label.lowercase()), { onValueChange(value - 1) }, size = 34.dp, enabled = value > range.first)
         Text("$value", style = FlightFinderType.title.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary, modifier = Modifier.padding(horizontal = 4.dp))
-        RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 34.dp, filled = true, enabled = value < range.last)
+        RoundIconButton(Icons.Filled.Add, stringResource(R.string.cd_more, label.lowercase()), { onValueChange(value + 1) }, size = 34.dp, filled = true, enabled = value < range.last)
     }
 }
 
@@ -112,8 +116,8 @@ fun StepperBox(label: String, value: Int, unit: String, range: IntRange, modifie
                 Text("$value", style = FlightFinderType.headline.copy(fontFeatureSettings = "tnum"), color = colors.textPrimary)
                 Text(" $unit", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(bottom = 4.dp))
             }
-            RoundIconButton(Icons.Filled.Remove, "Meno ${label.lowercase()}", { onValueChange(value - 1) }, size = 32.dp, enabled = value > range.first)
-            RoundIconButton(Icons.Filled.Add, "Più ${label.lowercase()}", { onValueChange(value + 1) }, size = 32.dp, filled = true, enabled = value < range.last)
+            RoundIconButton(Icons.Filled.Remove, stringResource(R.string.cd_less, label.lowercase()), { onValueChange(value - 1) }, size = 32.dp, enabled = value > range.first)
+            RoundIconButton(Icons.Filled.Add, stringResource(R.string.cd_more, label.lowercase()), { onValueChange(value + 1) }, size = 32.dp, filled = true, enabled = value < range.last)
         }
     }
 }
@@ -170,13 +174,16 @@ fun SelectionMark(selected: Boolean, modifier: Modifier = Modifier) {
     ) { if (selected) Icon(Icons.Filled.Check, contentDescription = null, tint = colors.onBrandFill, modifier = Modifier.size(14.dp)) }
 }
 
-private val DAY_LABELS = listOf("Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom")
+/** "Lun" / "Mon" nella lingua dell'app. */
+fun DayOfWeek.shortName(): String =
+    getDisplayName(TextStyle.SHORT, appLocale()).replace(".", "").replaceFirstChar { it.uppercase() }
 
 /** I giorni ammessi, abbreviati in "Solo ven, sab" per le intestazioni. */
+@Composable
 fun daysSummary(days: List<DayOfWeek>): String = when (days.size) {
-    0 -> "Nessun giorno"
-    7 -> "Tutti i giorni"
-    else -> "Solo " + days.sorted().joinToString(", ") { DAY_LABELS[it.value - 1].lowercase() }
+    0 -> stringResource(R.string.days_none)
+    7 -> stringResource(R.string.days_all)
+    else -> stringResource(R.string.days_only, days.sorted().joinToString(", ") { it.shortName().lowercase() })
 }
 
 /** I giorni come nella striscia dei giorni di TREK: il giorno scelto è la pillola piena. */
@@ -191,7 +198,7 @@ fun DaysPicker(selected: List<DayOfWeek>, onChange: (List<DayOfWeek>) -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    DAY_LABELS[i], style = FlightFinderType.label.copy(fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium),
+                    day.shortName(), style = FlightFinderType.label.copy(fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium),
                     color = if (on) colors.onBrandFill else colors.textPrimary,
                 )
             }
@@ -222,7 +229,7 @@ fun CollapsibleSection(
             }
             Icon(
                 if (open) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = if (open) "Chiudi" else "Apri", tint = colors.textTertiary,
+                contentDescription = stringResource(if (open) R.string.cd_close else R.string.cd_open), tint = colors.textTertiary,
                 modifier = Modifier.size(20.dp),
             )
         }

@@ -19,7 +19,7 @@ Flight Finder's flight search in a native Android app, with a Kotlin engine and 
 
 ---
 
-Flight Finder helps you compare trips with **exact or flexible dates**, **one-way or round-trip itineraries**, from **multiple airports** to specific destinations or **Anywhere** ("Ovunque" in the current Italian interface).
+Flight Finder helps you compare trips with **exact or flexible dates**, **one-way or round-trip itineraries**, from **multiple airports** to specific destinations or **Anywhere**. The app is in English and Italian and follows the phone's language.
 
 The engine runs on the device and Google Flights requests use the phone's connection: **there is no need to run the Python web app or a dedicated backend**. The project ports the [web app's](https://github.com/gzanee/Flight-Finder) engine, with parity tests against reference cases.
 
@@ -42,7 +42,7 @@ The engine runs on the device and Google Flights requests use the phone's connec
   </tr>
 </table>
 
-*Screenshots show an example configuration in the current Italian interface: origins are not limited to those shown. Select an image to view it at full size.*
+*Screenshots show an example configuration in English (the app also speaks Italian, following the phone's language): origins are not limited to those shown. Select an image to view it at full size.*
 
 <details>
 <summary><strong>Dark theme, history and connection test</strong></summary>

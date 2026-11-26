@@ -42,7 +42,7 @@ Il motore gira sul dispositivo e le richieste a Google Flights partono dalla con
   </tr>
 </table>
 
-*Gli screenshot mostrano una configurazione di esempio: le origini non sono limitate a quelle visualizzate. Tocca un'immagine per aprirla a dimensione intera.*
+*Gli screenshot mostrano una configurazione di esempio in inglese (l'app è in italiano e in inglese e segue la lingua del telefono): le origini non sono limitate a quelle visualizzate. Tocca un'immagine per aprirla a dimensione intera.*
 
 <details>
 <summary><strong>Tema scuro, storico e prova connessione</strong></summary>

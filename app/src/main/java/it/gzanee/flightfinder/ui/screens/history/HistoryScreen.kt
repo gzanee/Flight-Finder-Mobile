@@ -1,5 +1,10 @@
 package it.gzanee.flightfinder.ui.screens.history
 
+import it.gzanee.flightfinder.ui.i18n.engineText
+import it.gzanee.flightfinder.ui.i18n.text
+import it.gzanee.flightfinder.ui.i18n.plural
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.gzanee.flightfinder.domain.model.JobStatus
 import it.gzanee.flightfinder.ui.format.asEuro
-import it.gzanee.flightfinder.ui.format.count
 import it.gzanee.flightfinder.ui.format.short
 import it.gzanee.flightfinder.ui.screens.components.BannerTone
 import it.gzanee.flightfinder.ui.screens.components.FlightFinderCard
@@ -42,7 +46,7 @@ import it.gzanee.flightfinder.ui.screens.components.FieldLabel
 import it.gzanee.flightfinder.ui.screens.components.Tag
 import it.gzanee.flightfinder.ui.screens.components.InfoBanner
 import it.gzanee.flightfinder.ui.screens.components.PlaceNames
-import it.gzanee.flightfinder.ui.screens.results.names
+import it.gzanee.flightfinder.ui.i18n.names
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import it.gzanee.flightfinder.ui.theme.FlightFinderType
 
@@ -68,20 +72,20 @@ fun HistoryScreenContent(
     onToggleTheme: () -> Unit = {},
 ) {
     var deleting by remember { mutableStateOf<SavedSearch?>(null) }
-    FlightFinderScaffold(title = "Le tue ricerche", subtitle = "Salvate su questo telefono", onBack = onBack, onToggleTheme = onToggleTheme) {
+    FlightFinderScaffold(title = stringResource(R.string.your_searches), subtitle = stringResource(R.string.saved_on_phone), onBack = onBack, onToggleTheme = onToggleTheme) {
         LazyColumn(Modifier.fillMaxWidth().weight(1f).navigationBarsPadding(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            errorMessage?.let { item { InfoBanner(it, BannerTone.BAD) } }
+            errorMessage?.let { item { InfoBanner(engineText(it), BannerTone.BAD) } }
             val list = searches ?: return@LazyColumn
             if (list.isEmpty()) {
                 item {
                     FlightFinderCard {
                         IconTile(Icons.Outlined.History)
-                        Text("Nessuna ricerca salvata", style = FlightFinderType.titleSm, color = colors.textPrimary)
-                        HintText("Le ricerche restano su questo telefono finché non le elimini.")
+                        Text(stringResource(R.string.no_saved), style = FlightFinderType.titleSm, color = colors.textPrimary)
+                        HintText(stringResource(R.string.no_saved_hint))
                     }
                 }
             } else {
-                item { FieldLabel(count(list.size, "ricerca salvata", "ricerche salvate"), Modifier.padding(horizontal = 4.dp)) }
+                item { FieldLabel(plural(R.plurals.saved_searches, list.size), Modifier.padding(horizontal = 4.dp)) }
             }
             items(list, key = { it.job.id }) { saved ->
                 val r = saved.job.request
@@ -95,37 +99,37 @@ fun HistoryScreenContent(
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(
                                 "${r.origins.map { names.city(it) }.distinct().joinToString(" + ")} → " +
-                                    if (r.destinations.isEmpty()) "Ovunque" else r.destinations.map(names::city).distinct().let { cities -> cities.take(3).joinToString(", ") + if (cities.size > 3) "…" else "" },
+                                    if (r.destinations.isEmpty()) stringResource(R.string.anywhere) else r.destinations.map(names::city).distinct().let { cities -> cities.take(3).joinToString(", ") + if (cities.size > 3) "…" else "" },
                                 style = FlightFinderType.titleSm, color = colors.textPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis,
                             )
                             Text(
-                                r.startDate.short() + (if (r.startDate == r.endDate) "" else " → ${r.endDate.short()}") + " · " + if (r.isRoundTrip) "andata e ritorno" else "solo andata",
+                                r.startDate.short() + (if (r.startDate == r.endDate) "" else " → ${r.endDate.short()}") + " · " + stringResource(if (r.isRoundTrip) R.string.round_trip_lower else R.string.one_way_lower),
                                 style = FlightFinderType.label, color = colors.textTertiary,
                             )
                         }
                         saved.cheapest?.let {
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("da", style = FlightFinderType.label, color = colors.textTertiary)
+                                Text(stringResource(R.string.from_price), style = FlightFinderType.label, color = colors.textTertiary)
                                 Text(it.asEuro(), style = FlightFinderType.price.copy(fontSize = FlightFinderType.title.fontSize), color = colors.textPrimary)
                             }
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Tag(saved.status.label, dot = if (done) colors.good else colors.warn)
-                        Tag(count(saved.job.results.size, "viaggio", "viaggi"))
+                        Tag(saved.status.text(), dot = if (done) colors.good else colors.warn)
+                        Tag(plural(R.plurals.trips, saved.job.results.size))
                     }
                 }
             }
-            if (list.isNotEmpty()) item { HintText("Tieni premuto su una ricerca per eliminarla.") }
+            if (list.isNotEmpty()) item { HintText(stringResource(R.string.long_press_delete)) }
         }
     }
     deleting?.let { saved ->
         AlertDialog(
             onDismissRequest = { deleting = null },
-            title = { Text("Eliminare la ricerca?") },
-            text = { Text("I risultati salvati di questa ricerca verranno cancellati dal telefono.") },
-            confirmButton = { TextButton(onClick = { deleting = null; onDelete(saved.job.id) }) { Text("Elimina", color = colors.bad) } },
-            dismissButton = { TextButton(onClick = { deleting = null }) { Text("Annulla", color = colors.textSecondary) } },
+            title = { Text(stringResource(R.string.delete_title)) },
+            text = { Text(stringResource(R.string.delete_text)) },
+            confirmButton = { TextButton(onClick = { deleting = null; onDelete(saved.job.id) }) { Text(stringResource(R.string.delete), color = colors.bad) } },
+            dismissButton = { TextButton(onClick = { deleting = null }) { Text(stringResource(R.string.cancel), color = colors.textSecondary) } },
             containerColor = colors.surface,
         )
     }

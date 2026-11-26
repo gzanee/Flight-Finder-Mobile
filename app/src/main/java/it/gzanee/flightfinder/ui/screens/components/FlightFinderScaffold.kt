@@ -1,5 +1,7 @@
 package it.gzanee.flightfinder.ui.screens.components
 
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -100,7 +102,7 @@ fun FlightFinderScaffold(
                 Modifier.fillMaxWidth().heightIn(min = 58.dp).padding(start = if (onBack != null) 4.dp else 18.dp, end = 4.dp, top = 2.dp, bottom = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (onBack != null) RoundIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Indietro", onBack)
+                if (onBack != null) RoundIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.cd_back), onBack)
                 Column(Modifier.weight(1f).padding(horizontal = 2.dp)) {
                     Text(title, style = FlightFinderType.title, color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (subtitle != null) Text(subtitle, style = FlightFinderType.label, color = colors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -108,7 +110,7 @@ fun FlightFinderScaffold(
                 if (action != null) RoundIconButton(action.icon, action.description, action.onClick, tinted = false)
                 RoundIconButton(
                     if (colors.isDark) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
-                    if (colors.isDark) "Modalità chiara" else "Modalità scura",
+                    stringResource(if (colors.isDark) R.string.cd_light_mode else R.string.cd_dark_mode),
                     onToggleTheme, filled = true,
                 )
             }

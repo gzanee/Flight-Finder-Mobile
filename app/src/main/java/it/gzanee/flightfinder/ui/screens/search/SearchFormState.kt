@@ -1,5 +1,10 @@
 package it.gzanee.flightfinder.ui.screens.search
 
+import it.gzanee.flightfinder.ui.i18n.countryName
+import it.gzanee.flightfinder.ui.screens.components.PlaceNames
+import androidx.annotation.StringRes
+import it.gzanee.flightfinder.ui.i18n.UiText
+import it.gzanee.flightfinder.R
 import it.gzanee.flightfinder.domain.model.AirlineMode
 import it.gzanee.flightfinder.domain.model.AirportChoice
 import it.gzanee.flightfinder.domain.model.Baggage
@@ -27,7 +32,8 @@ sealed interface PlaceChoice {
     data class Country(val country: String, override val label: String, override val codes: List<String>) : PlaceChoice
 }
 
-class FormError(message: String) : IllegalArgumentException(message)
+/** Un campo del modulo che non si può leggere; il testo si traduce nella schermata. */
+class FormError(val text: UiText) : IllegalArgumentException(text.toString())
 
 /** Il modulo di ricerca come lo compila l'utente: i campi di testo restano testo finché si cerca. */
 data class SearchFormState(
@@ -98,11 +104,20 @@ data class SearchFormState(
 
     fun destinationCodes() = destinations.flatMap { it.codes }.distinct()
 
+    /** Le etichette dei luoghi scelti nella lingua dell'app (i predefiniti nascono in italiano). */
+    fun relabeled(names: PlaceNames): SearchFormState {
+        fun PlaceChoice.relabel(): PlaceChoice = when (this) {
+            is PlaceChoice.Airport -> copy(label = names.city(code))
+            is PlaceChoice.Country -> copy(label = countryName(country))
+        }
+        return copy(origins = origins.map { it.relabel() }, destinations = destinations.map { it.relabel() })
+    }
+
     /** La richiesta per il motore, che poi la valida. Lancia [FormError] per i campi di testo illeggibili. */
     fun toRequest(): SearchRequest {
-        if (origins.isEmpty()) throw FormError("Da dove parti? Aggiungi almeno un aeroporto.")
+        if (origins.isEmpty()) throw FormError(UiText.of(R.string.err_no_origins))
         val destinations = if (anywhere) emptyList() else destinationCodes()
-        if (!anywhere && destinations.isEmpty()) throw FormError("Dove vuoi andare? Aggiungi una destinazione oppure scegli Ovunque.")
+        if (!anywhere && destinations.isEmpty()) throw FormError(UiText.of(R.string.err_no_destinations))
         return SearchRequest(
             origins = origins.flatMap { it.codes },
             destinations = destinations,
@@ -115,7 +130,7 @@ data class SearchFormState(
             returnDays = returnDays,
             minNights = minNights,
             maxNights = maxNights,
-            budget = number(budget, "Budget") ?: NO_BUDGET,
+            budget = number(budget, R.string.field_budget) ?: NO_BUDGET,
             adults = adults,
             children = children,
             infants = infants,
@@ -132,8 +147,8 @@ data class SearchFormState(
             schengenTransfersOnly = schengenTransfers,
             finalArrivalMax = finalArrival,
             minDestinationHours = if (isRoundTrip) minHours else 0,
-            minLayoverMinutes = number(minLayover, "Scalo minimo")?.roundToInt() ?: 0,
-            maxLayoverMinutes = number(maxLayover, "Scalo massimo")?.roundToInt() ?: NO_LIMIT_MINUTES,
+            minLayoverMinutes = number(minLayover, R.string.field_min_layover)?.roundToInt() ?: 0,
+            maxLayoverMinutes = number(maxLayover, R.string.field_max_layover)?.roundToInt() ?: NO_LIMIT_MINUTES,
             departureMin = departureMin,
             departureMax = departureMax,
             returnMin = if (isRoundTrip) returnMin else LocalTime.MIDNIGHT,
@@ -142,25 +157,25 @@ data class SearchFormState(
             departureArrivalMax = departureArrivalMax,
             returnArrivalMin = if (isRoundTrip) returnArrivalMin else LocalTime.MIDNIGHT,
             returnArrivalMax = if (isRoundTrip) returnArrivalMax else LocalTime.of(23, 59),
-            departureDurationMin = hours(departureDurationMin, 0.0, "Durata andata"),
-            departureDurationMax = hours(departureDurationMax, 72.0, "Durata andata"),
-            returnDurationMin = if (isRoundTrip) hours(returnDurationMin, 0.0, "Durata ritorno") else 0,
-            returnDurationMax = if (isRoundTrip) hours(returnDurationMax, 72.0, "Durata ritorno") else NO_LIMIT_MINUTES,
+            departureDurationMin = hours(departureDurationMin, 0.0, R.string.field_outbound_duration),
+            departureDurationMax = hours(departureDurationMax, 72.0, R.string.field_outbound_duration),
+            returnDurationMin = if (isRoundTrip) hours(returnDurationMin, 0.0, R.string.field_return_duration) else 0,
+            returnDurationMax = if (isRoundTrip) hours(returnDurationMax, 72.0, R.string.field_return_duration) else NO_LIMIT_MINUTES,
         )
     }
 
     companion object {
-        private fun number(text: String, label: String): Double? {
+        private fun number(text: String, @StringRes label: Int): Double? {
             val t = text.trim().replace(',', '.')
             if (t.isEmpty()) return null
-            return t.toDoubleOrNull() ?: throw FormError("$label: indica un numero.")
+            return t.toDoubleOrNull() ?: throw FormError(UiText.of(R.string.err_not_number, UiText.of(label)))
         }
 
-        private fun hours(text: String, fallback: Double, label: String) = ((number(text, label) ?: fallback) * 60).roundToInt()
+        private fun hours(text: String, fallback: Double, @StringRes label: Int) = ((number(text, label) ?: fallback) * 60).roundToInt()
 
         private fun trim(x: Double) = if (x % 1 == 0.0) x.toLong().toString() else x.toString()
 
-        /** Il modulo di una ricerca salvata, per rifarla o modificarla. */
+        /** Il modulo di una ricerca salvata, per rifarla o modificarla; `city` dà il nome nella lingua dell'app. */
         fun from(request: SearchRequest, city: (String) -> String) = SearchFormState(
             tripType = request.tripType,
             dateMode = request.dateMode,

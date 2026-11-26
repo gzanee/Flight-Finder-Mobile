@@ -1,5 +1,8 @@
 package it.gzanee.flightfinder.ui.screens.search
 
+import it.gzanee.flightfinder.ui.i18n.names
+import it.gzanee.flightfinder.ui.i18n.UiText
+import it.gzanee.flightfinder.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,15 +36,17 @@ class SearchViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    private val _errorMessage = MutableStateFlow<UiText?>(null)
+    val errorMessage: StateFlow<UiText?> = _errorMessage.asStateFlow()
 
     private val _longSearch = MutableStateFlow<LongSearchPrompt?>(null)
     val longSearch: StateFlow<LongSearchPrompt?> = _longSearch.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _destinationSets.value = airportRepository.catalog().destinationSets.map { it.key to it.value.label }
+            val catalog = airportRepository.catalog()
+            _destinationSets.value = catalog.destinationSets.map { it.key to it.value.label }
+            _form.update { it.relabeled(catalog.names()) }
         }
     }
 
@@ -61,14 +66,14 @@ class SearchViewModel @Inject constructor(
 
     /** Ricarica una ricerca salvata nel modulo ("Modifica"). */
     fun edit(request: SearchRequest) = viewModelScope.launch {
-        val catalog = airportRepository.catalog()
-        _form.value = SearchFormState.from(request, catalog::city)
+        val names = airportRepository.catalog().names()
+        _form.value = SearchFormState.from(request, names::city)
     }
 
     /** Valida e avvia; una ricerca lunga chiede conferma. `onStarted` riceve l'id della ricerca. */
     fun search(onStarted: (String) -> Unit) {
         if (searchRepository.activeId != null) {
-            _errorMessage.value = "Una ricerca è già in corso: aprila da «Le tue ricerche» e fermala prima di avviarne un’altra."
+            _errorMessage.value = UiText.of(R.string.err_search_running)
             return
         }
         viewModelScope.launch {
@@ -79,11 +84,11 @@ class SearchViewModel @Inject constructor(
                 if (planned.estimatedMinutes >= LONG_SEARCH_MINUTES) _longSearch.value = LongSearchPrompt(planned)
                 else onStarted(searchRepository.start(planned))
             } catch (e: FormError) {
-                _errorMessage.value = e.message
+                _errorMessage.value = e.text
             } catch (e: SearchValidationError) {
-                _errorMessage.value = e.message
+                _errorMessage.value = UiText.Engine(e.message.orEmpty())
             } catch (e: IllegalStateException) {
-                _errorMessage.value = e.message
+                _errorMessage.value = UiText.Engine(e.message.orEmpty())
             } finally {
                 _isLoading.value = false
             }
@@ -96,7 +101,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching { searchRepository.start(prompt.search) }
                 .onSuccess(onStarted)
-                .onFailure { _errorMessage.value = it.message }
+                .onFailure { _errorMessage.value = UiText.Engine(it.message.orEmpty()) }
         }
     }
 

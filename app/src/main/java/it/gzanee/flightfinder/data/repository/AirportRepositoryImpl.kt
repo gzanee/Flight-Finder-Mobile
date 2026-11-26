@@ -16,7 +16,7 @@ class AirportRepositoryImpl(private val context: Context) : AirportRepository {
     override suspend fun catalog(): AirportCatalog = mutex.withLock {
         catalog ?: withContext(Dispatchers.Default) {
             fun asset(name: String) = context.assets.open(name).bufferedReader().use { it.readText() }
-            AirportCatalog(asset("airports.json"), asset("places.json"), asset("routes.json"), asset("airlines.json"), asset("countries_it.json"))
+            AirportCatalog(asset("airports.json"), asset("places.json"), asset("routes.json"), asset("airlines.json"), asset("countries_it.json"), asset("cities_en.json"))
         }.also { catalog = it }
     }
 }

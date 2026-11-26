@@ -1,5 +1,11 @@
 package it.gzanee.flightfinder.ui.screens.components
 
+import java.time.format.TextStyle
+import java.time.DayOfWeek
+import it.gzanee.flightfinder.ui.format.asEuro
+import it.gzanee.flightfinder.ui.format.appLocale
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,10 +31,8 @@ import it.gzanee.flightfinder.ui.theme.FlightFinderType
 import it.gzanee.flightfinder.ui.theme.TABULAR
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.roundToInt
 
-private val MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ITALIAN)
 
 /**
  * Prezzo minimo per giorno di partenza, mese per mese. Il giorno più economico è pieno,
@@ -44,9 +48,9 @@ fun PriceCalendar(items: List<CalendarPrice>) {
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         generateSequence(first) { it.plusMonths(1) }.takeWhile { it <= last }.forEach { month ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(month.format(MONTH).replaceFirstChar { it.uppercase() }, style = FlightFinderType.title, color = colors.textPrimary)
+                Text(month.format(DateTimeFormatter.ofPattern("LLLL yyyy", appLocale())).replaceFirstChar { it.uppercase() }, style = FlightFinderType.title, color = colors.textPrimary)
                 Row(Modifier.padding(top = 8.dp)) {
-                    listOf("L", "M", "M", "G", "V", "S", "D").forEach {
+                    DayOfWeek.entries.map { it.getDisplayName(TextStyle.NARROW, appLocale()) }.forEach {
                         Text(it, style = FlightFinderType.overline, color = colors.textTertiary, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
                     }
                 }
@@ -73,7 +77,7 @@ fun PriceCalendar(items: List<CalendarPrice>) {
                                         }
                                         Text("${day.dayOfMonth}", style = FlightFinderType.body.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = TABULAR), color = ink)
                                         Text(
-                                            price?.let { "${it.roundToInt()}€" } ?: " ",
+                                            price?.let { it.roundToInt().toDouble().asEuro().replace(" ", "") } ?: " ",
                                             style = FlightFinderType.label.copy(fontFeatureSettings = TABULAR, fontWeight = if (cheapest || low) FontWeight.SemiBold else FontWeight.Normal),
                                             color = if (cheapest) colors.onBrandFill else if (low) colors.textPrimary else colors.textTertiary, maxLines = 1,
                                         )
@@ -87,9 +91,9 @@ fun PriceCalendar(items: List<CalendarPrice>) {
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             LegendDot(colors.brandFill)
-            Text("Il più economico", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(start = 6.dp, end = 16.dp))
+            Text(stringResource(R.string.calendar_cheapest), style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(start = 6.dp, end = 16.dp))
             LegendDot(colors.surfaceStrong)
-            Text("Tra i più economici", style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(start = 6.dp))
+            Text(stringResource(R.string.calendar_cheap), style = FlightFinderType.label, color = colors.textTertiary, modifier = Modifier.padding(start = 6.dp))
         }
     }
 }

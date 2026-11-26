@@ -1,5 +1,9 @@
 package it.gzanee.flightfinder.ui.screens.components
 
+import it.gzanee.flightfinder.ui.format.appLocale
+import it.gzanee.flightfinder.ui.i18n.plural
+import androidx.compose.ui.res.stringResource
+import it.gzanee.flightfinder.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,14 +34,12 @@ import it.gzanee.flightfinder.domain.model.Trip
 import it.gzanee.flightfinder.ui.format.asDuration
 import it.gzanee.flightfinder.ui.format.asEuro
 import it.gzanee.flightfinder.ui.format.clock
-import it.gzanee.flightfinder.ui.format.count
 import it.gzanee.flightfinder.ui.format.short
 import it.gzanee.flightfinder.ui.format.shortDay
 import it.gzanee.flightfinder.ui.theme.FlightFinderColorScheme.colors
 import it.gzanee.flightfinder.ui.theme.FlightFinderType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /** Nome della città, bandiera e paese di un aeroporto, dal catalogo. */
 interface PlaceNames {
@@ -49,7 +51,8 @@ interface PlaceNames {
 
 private fun Quote.airlines() = segments.map { it.airlineName.ifEmpty { it.airlineCode } }.distinct().joinToString(", ")
 
-private fun Quote.stopsLabel() = if (stops > 0) count(stops, "scalo", "scali") else "Diretto"
+@Composable
+private fun Quote.stopsLabel() = if (stops > 0) plural(R.plurals.stops, stops) else stringResource(R.string.direct)
 
 /**
  * Gli orari di una tratta da confrontare: partenza e arrivo grandi ai lati, sotto il codice
@@ -92,16 +95,17 @@ private fun LegTimes(quote: Quote, names: PlaceNames?, detailed: Boolean) {
 
 /** Una tratta nel dettaglio: etichetta con il giorno, compagnia e voli, poi gli orari da confrontare. */
 @Composable
-fun LegRow(quote: Quote, title: String, names: PlaceNames) {
+fun LegRow(quote: Quote, inbound: Boolean, names: PlaceNames) {
+    val title = stringResource(if (inbound) R.string.inbound else R.string.outbound)
     val numbers = quote.segments.joinToString(" + ") { "${it.airlineCode} ${it.flightNumber}" }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(if (title == "Ritorno") Icons.Filled.FlightLand else Icons.Filled.FlightTakeoff, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(15.dp))
+            Icon(if (inbound) Icons.Filled.FlightLand else Icons.Filled.FlightTakeoff, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(15.dp))
             FieldLabel("$title · ${quote.first.departure.shortDay()}", Modifier.weight(1f))
             Text("${quote.airlines()} · $numbers", style = FlightFinderType.label, color = colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         LegTimes(quote, names, detailed = true)
-        if (quote.stops > 0 && quote.selfTransfer == true) HintText("Cambio volo a carico tuo: bagagli e coincidenza non sono garantiti.", warn = true)
+        if (quote.stops > 0 && quote.selfTransfer == true) HintText(stringResource(R.string.self_transfer_warning), warn = true)
     }
 }
 
@@ -116,14 +120,16 @@ fun StayDivider(text: String) {
     }
 }
 
-private val DAY_MONTH = DateTimeFormatter.ofPattern("d MMM", Locale.ITALIAN)
 
 /** "8 → 10 gen", "30 dic → 2 gen", "ven 8 gen". */
-fun dateSpan(from: LocalDate, to: LocalDate?): String = when {
+fun dateSpan(from: LocalDate, to: LocalDate?): String {
+    val dayMonth = DateTimeFormatter.ofPattern("d MMM", appLocale())
+    return when {
     to == null || to == from -> from.short()
-    from.month == to.month -> "${from.dayOfMonth} → ${to.format(DAY_MONTH)}"
-    else -> "${from.format(DAY_MONTH)} → ${to.format(DAY_MONTH)}"
-}.replace(".", "")
+        from.month == to.month -> "${from.dayOfMonth} → ${to.format(dayMonth)}"
+        else -> "${from.format(dayMonth)} → ${to.format(dayMonth)}"
+    }.replace(".", "")
+}
 
 /** Il prezzo in una pillola piena, come l'azione principale della card. */
 @Composable
@@ -152,7 +158,7 @@ fun TripCard(trip: Trip, names: PlaceNames, highlighted: Boolean = false, best: 
                 )
                 Text(names.flag(trip.destination), style = FlightFinderType.body)
             }
-            if (best) Tag("Miglior prezzo", accent = true)
+            if (best) Tag(stringResource(R.string.best_price), accent = true)
         }
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             LegTimes(trip.outbound, names, detailed = false)
@@ -164,24 +170,24 @@ fun TripCard(trip: Trip, names: PlaceNames, highlighted: Boolean = false, best: 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 val stay = listOfNotNull(
-                    trip.usefulMinutes?.takeIf { inbound != null }?.let { "${it.asDuration()} ${if (trip.destination == away) "sul posto" else "tra i voli"}" },
-                    inbound?.let { count(trip.nights ?: 0, "notte", "notti") },
-                    home?.takeIf { it != trip.origin }?.let { "rientro a ${names.city(it)}" },
+                    trip.usefulMinutes?.takeIf { inbound != null }?.let { stringResource(if (trip.destination == away) R.string.time_there else R.string.time_between, it.asDuration()) },
+                    inbound?.let { plural(R.plurals.nights, trip.nights ?: 0) },
+                    home?.takeIf { it != trip.origin }?.let { stringResource(R.string.back_to, names.city(it)) },
                 ).joinToString(" · ")
                 if (stay.isNotEmpty()) Text(stay, style = FlightFinderType.label, color = colors.textPrimary, maxLines = 2)
                 Text(
                     listOfNotNull(
                         when (trip.outbound.baggage) {
-                            Baggage.CABIN -> "Trolley incluso"
-                            Baggage.CHECKED -> "Valigia inclusa"
-                            Baggage.BASE -> "Solo bagaglio piccolo"
+                            Baggage.CABIN -> stringResource(R.string.bag_cabin_included)
+                            Baggage.CHECKED -> stringResource(R.string.bag_checked_included)
+                            Baggage.BASE -> stringResource(R.string.baggage_base)
                         },
-                        if (trip.outbound.travelers > 1) "${trip.outbound.travelers} persone" else null,
-                        trip.roundTripFrom?.let { "A/R unico da ${it.asEuro()}" },
+                        if (trip.outbound.travelers > 1) plural(R.plurals.people, trip.outbound.travelers) else null,
+                        trip.roundTripFrom?.let { stringResource(R.string.round_trip_ticket_from, it.asEuro()) },
                     ).joinToString(" · "),
                     style = FlightFinderType.label, color = colors.textTertiary, maxLines = 2,
                 )
-                if (trip.needsRecheck == true) Text("Prezzo da aggiornare", style = FlightFinderType.label, color = colors.warn)
+                if (trip.needsRecheck == true) Text(stringResource(R.string.price_to_refresh), style = FlightFinderType.label, color = colors.warn)
             }
             PricePill(trip.price)
         }

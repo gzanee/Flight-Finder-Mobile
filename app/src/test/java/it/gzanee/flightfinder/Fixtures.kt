@@ -24,7 +24,7 @@ object Fixtures {
 
     val catalog: AirportCatalog by lazy {
         fun c(name: String) = File(catalogDir, name).readText()
-        AirportCatalog(c("airports.json"), c("places.json"), c("routes.json"), c("airlines.json"), c("countries_it.json"))
+        AirportCatalog(c("airports.json"), c("places.json"), c("routes.json"), c("airlines.json"), c("countries_it.json"), c("cities_en.json"))
     }
 
     /**

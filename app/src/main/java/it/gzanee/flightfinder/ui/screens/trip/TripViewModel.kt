@@ -1,5 +1,7 @@
 package it.gzanee.flightfinder.ui.screens.trip
 
+import it.gzanee.flightfinder.ui.i18n.UiText
+import it.gzanee.flightfinder.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -54,14 +56,14 @@ class TripViewModel @Inject constructor(
         try {
             when (val result = searchRepository.recheck(searchId, tripId)) {
                 is RecheckResult.Confirmed -> {
-                    val message = if (result.priceChanged) BannerMessage("Il prezzo è cambiato: ora ${result.result.price.asEuro()}.", BannerTone.WARN) else BannerMessage("Prezzo confermato.", BannerTone.GOOD)
+                    val message = if (result.priceChanged) BannerMessage(UiText.of(R.string.price_changed, result.result.price.asEuro()), BannerTone.WARN) else BannerMessage(UiText.of(R.string.price_confirmed), BannerTone.GOOD)
                     _uiState.update { it.copy(trip = searchRepository.trip(searchId, tripId), message = message) }
                 }
-                is RecheckResult.NotConfirmed -> _uiState.update { it.copy(trip = null, message = BannerMessage(result.message, BannerTone.BAD)) }
-                is RecheckResult.OutsideFilters -> _uiState.update { it.copy(trip = null, message = BannerMessage(result.message, BannerTone.BAD)) }
+                is RecheckResult.NotConfirmed -> _uiState.update { it.copy(trip = null, message = BannerMessage(UiText.Engine(result.message), BannerTone.BAD)) }
+                is RecheckResult.OutsideFilters -> _uiState.update { it.copy(trip = null, message = BannerMessage(UiText.Engine(result.message), BannerTone.BAD)) }
             }
         } catch (e: Exception) {
-            _uiState.update { it.copy(message = BannerMessage("Non è stato possibile aggiornare il prezzo: ${e.message}", BannerTone.BAD)) }
+            _uiState.update { it.copy(message = BannerMessage(UiText.of(R.string.recheck_failed, UiText.Engine(e.message.orEmpty())), BannerTone.BAD)) }
         } finally {
             _uiState.update { it.copy(isRechecking = false) }
         }
